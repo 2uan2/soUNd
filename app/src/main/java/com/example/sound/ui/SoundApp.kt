@@ -8,6 +8,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.sound.ui.album.AlbumScreen
+import com.example.sound.ui.home.MainScreen
+import com.example.sound.ui.player.PlayerScreen
 
 enum class Screen {
     MAIN,
@@ -23,7 +26,6 @@ fun SoundApp(
     val navController: NavHostController = rememberNavController()
 
     Scaffold(
-
     ) { innerPadding ->
         NavHost(
             navController,

@@ -1,9 +1,9 @@
-package com.example.sound.ui
+package com.example.sound.ui.album
 
 import androidx.compose.runtime.Composable
 
 @Composable
-fun PlayerScreen(
+fun AlbumScreen(
 
 ) {
 
