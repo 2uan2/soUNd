@@ -20,12 +20,14 @@ import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,22 +36,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sound.R
-import androidx.compose.material3.Icon
-import androidx.compose.runtime.mutableFloatStateOf
+import com.example.sound.playerService.rememberExoPlayer
 
 @Composable
 fun PlayerScreen(
 
 ) {
+    val context = LocalContext.current
+    val songUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    val exoPlayer = rememberExoPlayer(context, songUrl)
+
 
     var isPlaying by remember { mutableStateOf(false) }
     var currentPosition by remember { mutableFloatStateOf(0f) }
     val totalDuration = 180f // 3 minutes in seconds
+
+    // When play button clicked
+    fun togglePlayback() {
+        isPlaying = !isPlaying
+        exoPlayer.playWhenReady = isPlaying
+        if (isPlaying) {
+            exoPlayer.play()
+        } else {
+            exoPlayer.pause()
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -136,7 +154,7 @@ fun PlayerScreen(
                     )
                 }
                 IconButton(
-                    onClick = { isPlaying = !isPlaying },
+                    onClick = { togglePlayback() },
                     modifier = Modifier
                         .size(70.dp)
                         .background(Color.Green, CircleShape)
