@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,19 +44,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sound.R
 import com.example.sound.playerService.rememberExoPlayer
+import kotlinx.coroutines.delay
 
 @Composable
 fun PlayerScreen(
 
 ) {
     val context = LocalContext.current
-    val songUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    val songUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" //the song url(can be changed in future)
     val exoPlayer = rememberExoPlayer(context, songUrl)
 
 
     var isPlaying by remember { mutableStateOf(false) }
     var currentPosition by remember { mutableFloatStateOf(0f) }
-    val totalDuration = 180f // 3 minutes in seconds
+    var totalDuration by remember { mutableFloatStateOf(0f) }
+    var isUserSeeking by remember { mutableStateOf(false) }
+
+    // Track playback position in real time
+    LaunchedEffect(isPlaying) {
+        while (true) {
+            if (isPlaying && !isUserSeeking) {
+                currentPosition = exoPlayer.currentPosition / 1000f
+                totalDuration = exoPlayer.duration.coerceAtLeast(0L) / 1000f
+            }
+            delay(500L)
+        }
+    }
 
     // When play button clicked
     fun togglePlayback() {
@@ -104,12 +118,19 @@ fun PlayerScreen(
                 )
             }
 
-            // Progress Bar
+            // Slider + Time display
             Column(modifier = Modifier.fillMaxWidth()) {
                 Slider(
                     value = currentPosition,
-                    onValueChange = { currentPosition = it },
-                    valueRange = 0f..totalDuration,
+                    onValueChange = {
+                        isUserSeeking = true
+                        currentPosition = it
+                    },
+                    onValueChangeFinished = {
+                        exoPlayer.seekTo((currentPosition * 1000).toLong())
+                        isUserSeeking = false
+                    },
+                    valueRange = 0f..(if (totalDuration > 0f) totalDuration else 1f),
                     modifier = Modifier.fillMaxWidth(),
                     colors = androidx.compose.material3.SliderDefaults.colors(
                         thumbColor = Color.Green,
