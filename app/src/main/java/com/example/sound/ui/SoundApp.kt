@@ -11,11 +11,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.sound.ui.album.AlbumScreen
 import com.example.sound.ui.home.MainScreen
 import com.example.sound.ui.player.PlayerScreen
+import com.example.sound.ui.shared.MyBottomBar
 
-enum class Screen {
-    MAIN,
-    ALBUM,
-    PLAYER,
+enum class Screen(val route:String) {
+    MAIN("main"),
+    ALBUM("album"),
+    PLAYER("player"),
 
 }
 
@@ -26,6 +27,7 @@ fun SoundApp(
     val navController: NavHostController = rememberNavController()
 
     Scaffold(
+        bottomBar = { MyBottomBar(navController) }
     ) { innerPadding ->
         NavHost(
             navController,
