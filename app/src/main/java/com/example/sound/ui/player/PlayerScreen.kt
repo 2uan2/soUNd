@@ -47,9 +47,7 @@ import com.example.sound.playerService.rememberExoPlayer
 import kotlinx.coroutines.delay
 
 @Composable
-fun PlayerScreen(
-
-) {
+fun PlayerScreen() {
     val context = LocalContext.current
     val songUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" //the song url(can be changed in future)
     val exoPlayer = rememberExoPlayer(context, songUrl)
