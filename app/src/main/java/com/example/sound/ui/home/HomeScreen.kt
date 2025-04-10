@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,16 +49,18 @@ fun HomeScreen(
     val uiState = viewModel.uiState.collectAsState()
     val songs = uiState.value.songs
 
+    var isSearchActive by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = modifier,
         topBar = {
             SearchBar(
-                modifier = Modifier.padding(16.dp),
+                modifier = modifier.padding(16.dp),
                 query = queryText,
                 onQueryChange = { queryText = it },
-                onSearch = {},
-                active = false,
-                onActiveChange = {},
+                onSearch = { isSearchActive = false },
+                active = isSearchActive,
+                onActiveChange = { isSearchActive = it },
                 placeholder = { Text("Search for songs") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = { Icon(Icons.Default.AccountCircle, contentDescription = "Account") }
@@ -69,29 +70,11 @@ fun HomeScreen(
         HomeBody(
             viewModel = viewModel,
             songList = uiState.value.songs,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = innerPadding,
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding),
         )
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(innerPadding)
-//        ) {
-//            // Song list content
-//            LazyColumn(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp),
-//                verticalArrangement = Arrangement.spacedBy(8.dp)
-//            ) {
-//                items(songs) { song ->
-//                    Text(
-//                        text = song,
-//
-//                    )
-//                }
-//            }
-//        }
+
     }
 }
 
@@ -100,22 +83,22 @@ fun HomeScreen(
 fun HomeBody(
     viewModel: HomeViewModel,
     songList: List<Song>,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    modifier: Modifier,
 ) {
-    Column {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         Button(
             onClick = viewModel::refreshSongs
         ) {
             Text(text = "Refresh songs")
         }
-//        Spacer(modifier = Modifier.padding(64.dp))
         HorizontalDivider()
         LazyColumn(
-//            modifier = modifier.padding(contentPadding)
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(songList) { song ->
@@ -133,10 +116,13 @@ fun SongContainer(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable {  }
+            .clickable { }
     ) {
-        Image(painter = painterResource(R.drawable.ic_launcher_foreground), contentDescription = null)
-        Column (
+        Image(
+            painter = painterResource(R.drawable.ic_launcher_foreground),
+            contentDescription = null
+        )
+        Column(
             modifier = modifier
         ) {
             Text(
@@ -154,10 +140,12 @@ fun SongContainer(
 
 @Preview(showBackground = true)
 @Composable
-fun preview() {
-    SongContainer(Song(
-        songUri = "testing",
-        name = "song",
-        duration = 100000,
-    ))
+fun Preview() {
+    SongContainer(
+        Song(
+            songUri = "testing",
+            name = "song",
+            duration = 100000,
+        )
+    )
 }
