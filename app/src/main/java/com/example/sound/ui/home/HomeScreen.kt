@@ -1,42 +1,56 @@
 package com.example.sound.ui.home
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.items
-import com.example.sound.ui.shared.MyBottomBar
-
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.sound.R
+import com.example.sound.data.database.model.Song
+import com.example.sound.ui.AppViewModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
-
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     var queryText by remember { mutableStateOf("") }
     val songs = listOf("Song 1", "Song 2", "Song 3", "Song 4", "Song 5")
+    val uiState = viewModel.uiState.collectAsState()
+
     Scaffold(
+        modifier = modifier,
         topBar = {
             SearchBar(
                 modifier = Modifier.padding(16.dp),
@@ -51,6 +65,12 @@ fun MainScreen(
             ) {}
         },
     ) { innerPadding ->
+        HomeBody(
+            viewModel = viewModel,
+            songList = uiState.value.songs,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = innerPadding,
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -74,3 +94,86 @@ fun MainScreen(
         }
     }
 }
+
+
+@Composable
+fun HomeBody(
+    viewModel: HomeViewModel,
+    songList: List<Song>,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
+    Column {
+        Button(
+            onClick = viewModel::refreshSongs
+        ) {
+            Text(text = "Refresh songs")
+        }
+//        Spacer(modifier = Modifier.padding(64.dp))
+        HorizontalDivider()
+        LazyColumn(
+            modifier = modifier.padding(contentPadding)
+        ) {
+            items(songList) { song ->
+                SongContainer(song)
+            }
+        }
+    }
+}
+
+@Composable
+fun SongContainer(
+    song: Song,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {  }
+    ) {
+        Image(painter = painterResource(R.drawable.ic_launcher_foreground), contentDescription = null)
+        Column (
+            modifier = modifier
+        ) {
+            Text(text = song.name, fontWeight = FontWeight.Bold)
+            Text(text = "${song.artist}")
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        // TODO: duration is in milliseconds, need function to turn it into minute:second format
+        Text(text = "${song.duration/60000}")
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun preview() {
+    SongContainer(Song(
+        songUri = "testing",
+        name = "song",
+        duration = 100000,
+    ))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -9,7 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.sound.ui.album.AlbumScreen
-import com.example.sound.ui.home.MainScreen
+import com.example.sound.ui.home.HomeScreen
 import com.example.sound.ui.player.PlayerScreen
 import com.example.sound.ui.shared.MyBottomBar
 
@@ -35,7 +35,7 @@ fun SoundApp(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(route = Screen.MAIN.name) {
-                MainScreen(
+                HomeScreen(
 
                 )
             }
