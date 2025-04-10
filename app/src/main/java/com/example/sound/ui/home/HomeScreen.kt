@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.R
 import com.example.sound.data.database.model.Song
 import com.example.sound.ui.AppViewModelProvider
+import com.example.sound.ui.player.formatTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,8 +47,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     var queryText by remember { mutableStateOf("") }
-    val songs = listOf("Song 1", "Song 2", "Song 3", "Song 4", "Song 5")
     val uiState = viewModel.uiState.collectAsState()
+    val songs = uiState.value.songs
 
     Scaffold(
         modifier = modifier,
@@ -71,27 +72,26 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = innerPadding,
         )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            // Song list content
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(songs) { song ->
-                    Text(
-                        text = song,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                }
-            }
-        }
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(innerPadding)
+//        ) {
+//            // Song list content
+//            LazyColumn(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(16.dp),
+//                verticalArrangement = Arrangement.spacedBy(8.dp)
+//            ) {
+//                items(songs) { song ->
+//                    Text(
+//                        text = song,
+//
+//                    )
+//                }
+//            }
+//        }
     }
 }
 
@@ -112,7 +112,11 @@ fun HomeBody(
 //        Spacer(modifier = Modifier.padding(64.dp))
         HorizontalDivider()
         LazyColumn(
-            modifier = modifier.padding(contentPadding)
+//            modifier = modifier.padding(contentPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(songList) { song ->
                 SongContainer(song)
@@ -135,12 +139,16 @@ fun SongContainer(
         Column (
             modifier = modifier
         ) {
-            Text(text = song.name, fontWeight = FontWeight.Bold)
+            Text(
+                text = song.name,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(8.dp)
+            )
             Text(text = "${song.artist}")
         }
         Spacer(modifier = Modifier.weight(1f))
-        // TODO: duration is in milliseconds, need function to turn it into minute:second format
-        Text(text = "${song.duration/60000}")
+        Text(text = formatTime(song.duration))
     }
 }
 
@@ -153,27 +161,3 @@ fun preview() {
         duration = 100000,
     ))
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

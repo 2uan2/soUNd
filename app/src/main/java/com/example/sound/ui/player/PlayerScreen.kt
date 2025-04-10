@@ -163,15 +163,8 @@ fun PlayerScreen() {
     }
 }
 
-//@SuppressLint("DefaultLocale")
-//private fun formatTime(seconds: Int): String {
-//    val minutes = seconds / 60
-//    val remaining = seconds % 60
-//    return String.format("%d:%02d", minutes, remaining)
-//}
-
 @SuppressLint("DefaultLocale")
-private fun formatTime(millis: Long): String {
+fun formatTime(millis: Long): String {
     val totalSeconds = millis / 1000
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
