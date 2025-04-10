@@ -42,12 +42,12 @@ import com.example.sound.ui.player.formatTime
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    onSongClick: (Song) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     var queryText by remember { mutableStateOf("") }
     val uiState = viewModel.uiState.collectAsState()
-    val songs = uiState.value.songs
 
     var isSearchActive by remember { mutableStateOf(false) }
 
@@ -68,6 +68,7 @@ fun HomeScreen(
         },
     ) { innerPadding ->
         HomeBody(
+            onSongClick = onSongClick,
             viewModel = viewModel,
             songList = uiState.value.songs,
             modifier = modifier
@@ -81,6 +82,7 @@ fun HomeScreen(
 
 @Composable
 fun HomeBody(
+    onSongClick: (Song) -> Unit,
     viewModel: HomeViewModel,
     songList: List<Song>,
     modifier: Modifier,
@@ -102,7 +104,10 @@ fun HomeBody(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(songList) { song ->
-                SongContainer(song)
+                SongContainer(
+                    song = song,
+                    onSongClick = onSongClick
+                )
             }
         }
     }
@@ -111,12 +116,13 @@ fun HomeBody(
 @Composable
 fun SongContainer(
     song: Song,
+    onSongClick: (Song) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickable { onSongClick(song) }
     ) {
         Image(
             painter = painterResource(R.drawable.ic_launcher_foreground),
@@ -146,6 +152,7 @@ fun Preview() {
             songUri = "testing",
             name = "song",
             duration = 100000,
-        )
+        ),
+        onSongClick = {}
     )
 }

@@ -1,14 +1,39 @@
 package com.example.sound.ui.player
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,10 +49,11 @@ import com.example.sound.R
 import com.example.sound.musicService.rememberMediaController
 import kotlinx.coroutines.delay
 
+const val TAG = "PlayerScreen"
 @Composable
-fun PlayerScreen() {
+fun PlayerScreen(songUri: String) {
     val context = LocalContext.current
-    val songUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+//    val songUri by  remember { mutableStateOf(songUri) }//"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
 
     val controller = rememberMediaController(context)
 
@@ -41,8 +67,8 @@ fun PlayerScreen() {
 
 
     // Set media item once
-    LaunchedEffect(controller) {
-        controller?.setMediaItem(MediaItem.fromUri(songUrl))
+    LaunchedEffect(songUri, controller) {
+        controller?.setMediaItem(MediaItem.fromUri(Uri.decode(songUri)))
         controller?.prepare()
         isPrepared = true
     }

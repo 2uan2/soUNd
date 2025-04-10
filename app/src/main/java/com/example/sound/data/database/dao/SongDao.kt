@@ -24,8 +24,11 @@ interface SongDao {
     suspend fun delete(song: Song)
 
     @Query("SELECT * FROM songs WHERE id = :id")
-    fun getItem(id: Long): Flow<Song>
+    fun getSong(id: Long): Flow<Song>
+
+    @Query("SELECT * FROM songs WHERE songUri = :uri")
+    fun getSong(uri: String): Flow<Song>
 
     @Query("SELECT * FROM songs")
-    fun getAllItems(): Flow<List<Song>>
+    fun getAllSongs(): Flow<List<Song>>
 }

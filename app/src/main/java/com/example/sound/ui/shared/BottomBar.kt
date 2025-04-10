@@ -31,17 +31,17 @@ fun MyBottomBar(navController: NavController) {
         BottomNavItem(
             title = "Home",
             icon = Icons.Default.Home,
-            screen = Screen.MAIN
+            screen = Screen.Home
         ),
         BottomNavItem(
             title = "Album",
             icon = Icons.Default.Album,
-            screen = Screen.ALBUM
+            screen = Screen.Album
         ),
         BottomNavItem(
             title = "Player",
             icon = Icons.Default.MusicNote,
-            screen = Screen.PLAYER
+            screen = Screen.Player
         )
     )
 
