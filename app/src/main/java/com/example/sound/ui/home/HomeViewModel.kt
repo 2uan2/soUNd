@@ -16,7 +16,7 @@ class HomeViewModel(
     private val songDataSource: BaseSongDataSource
 ) : ViewModel() {
     var uiState: StateFlow<HomeUiState> =
-        songDataSource.getAllSong().map { HomeUiState(it) }
+        songDataSource.getAllSongs().map { HomeUiState(it) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),

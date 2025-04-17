@@ -9,7 +9,9 @@ interface BaseSongDataSource {
 
     fun getSong(uri: String): Flow<Song>
 
-    fun getAllSong(): Flow<List<Song>>
+    fun getAllSongs(): Flow<List<Song>>
+
+    fun getAllSongsByArtist(artist: String): Flow<List<Song>>
 
     suspend fun insertSong(song: Song)
 
@@ -28,7 +30,9 @@ class LocalSongDataSource(
 
     override fun getSong(uri: String): Flow<Song> = songDao.getSong(uri)
 
-    override fun getAllSong(): Flow<List<Song>> = songDao.getAllSongs()
+    override fun getAllSongs(): Flow<List<Song>> = songDao.getAllSongs()
+
+    override fun getAllSongsByArtist(artist: String): Flow<List<Song>> = songDao.getAllSongsByArtist(artist)
 
     override suspend fun insertSong(song: Song) = songDao.insert(song)
 
