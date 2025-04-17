@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.sound.data.database.dao.PlaylistDao
 import com.example.sound.data.database.dao.SongDao
-import com.example.sound.data.database.model.Album
+import com.example.sound.data.database.model.Playlist
+import com.example.sound.data.database.model.PlaylistSongCrossRef
 import com.example.sound.data.database.model.Song
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
@@ -13,13 +15,15 @@ import kotlinx.coroutines.internal.synchronized
 @Database(
     entities = [
         Song::class,
-        Album::class,
+        Playlist::class,
+        PlaylistSongCrossRef::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun songDao(): SongDao
+    abstract fun playlistDao(): PlaylistDao
 
     companion object {
         @Volatile

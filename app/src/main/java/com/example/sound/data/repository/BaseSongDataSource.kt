@@ -4,7 +4,7 @@ import com.example.sound.data.database.dao.SongDao
 import com.example.sound.data.database.model.Song
 import kotlinx.coroutines.flow.Flow
 
-interface SongDataSource {
+interface BaseSongDataSource {
     fun getSong(id: Long): Flow<Song>
 
     fun getSong(uri: String): Flow<Song>
@@ -23,7 +23,7 @@ interface SongDataSource {
 class LocalSongDataSource(
     private val songDao: SongDao,
     private val mediaStore: MediaStoreDataSource
-) : SongDataSource {
+) : BaseSongDataSource {
     override fun getSong(id: Long): Flow<Song> = songDao.getSong(id)
 
     override fun getSong(uri: String): Flow<Song> = songDao.getSong(uri)
