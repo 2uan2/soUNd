@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sound.ui.album.AlbumDetailViewModel
 import com.example.sound.ui.album.AlbumListViewModel
+import com.example.sound.ui.playlist.PlaylistDetailViewModel
 import com.example.sound.ui.playlist.PlaylistEntryViewModel
 import com.example.sound.ui.playlist.PlaylistListViewModel
 
@@ -62,6 +63,13 @@ object AppViewModelProvider {
             PlaylistEntryViewModel(
                 SoundApplication.container.playlistDataSource,
                 SoundApplication.container.songStore,
+            )
+        }
+
+        initializer {
+            PlaylistDetailViewModel(
+                SoundApplication.container.playlistDataSource,
+                this.createSavedStateHandle(),
             )
         }
     }

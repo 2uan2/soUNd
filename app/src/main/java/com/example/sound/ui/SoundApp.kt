@@ -16,21 +16,25 @@ import com.example.sound.ui.album.AlbumDetailScreen
 import com.example.sound.ui.album.AlbumListScreen
 import com.example.sound.ui.home.HomeScreen
 import com.example.sound.ui.player.PlayerScreen
+import com.example.sound.ui.playlist.PlaylistDetailScreen
 import com.example.sound.ui.playlist.PlaylistEntryScreen
 import com.example.sound.ui.playlist.PlaylistListScreen
 import com.example.sound.ui.shared.MyBottomBar
 
-sealed class Screen(val route:String) {
+sealed class Screen(val route: String) {
     object Home : Screen("home")
-    object AlbumDetail : Screen("album/{$ARG_ALBUM_NAME}") {
-        fun createRoute(albumUri: String) = "album/${Uri.encode(albumUri)}"
-    }
     object Player : Screen("player/{$ARG_SONG_URI}") {
         fun createRoute(songUri: String) = "player/${Uri.encode(songUri)}"
     }
     object AlbumList: Screen("album")
+    object AlbumDetail : Screen("album/{$ARG_ALBUM_NAME}") {
+        fun createRoute(albumName: String) = "album/${Uri.encode(albumName)}"
+    }
     object PlaylistList : Screen("playlist")
     object PlaylistEntry : Screen("playlist_entry")
+    object PlaylistDetail : Screen("playlist/{$ARG_PLAYLIST_ID}") {
+        fun createRoute(playlistId: Long) = "playlist/$playlistId"
+    }
 
     companion object {
         val ARG_SONG_URI = "songUri"
@@ -57,7 +61,7 @@ fun SoundApp(
             composable(route = Screen.Home.route) {
                 HomeScreen(
                     onSongClick = { song ->
-                        Log.i(TAG, "${song.songUri}")
+                        Log.i(TAG, song.songUri)
                         Log.i(TAG, Screen.Player.createRoute(song.songUri))
                         navController.navigate(Screen.Player.createRoute(song.songUri))
                     }
@@ -67,11 +71,34 @@ fun SoundApp(
                 PlaylistListScreen(
                     onCreatePlaylistButtonClicked = {
                         navController.navigate(Screen.PlaylistEntry.route)
+                    },
+                    onPlaylistClicked = { playlist ->
+                        Log.i(TAG, Screen.PlaylistDetail.createRoute(playlist.playlistId))
+                        navController.navigate(Screen.PlaylistDetail.createRoute(playlist.playlistId))
                     }
                 )
             }
             composable(route = Screen.PlaylistEntry.route) {
-                PlaylistEntryScreen()
+                PlaylistEntryScreen(
+                    onCreateButtonClicked = {
+                        navController.navigate(Screen.PlaylistList.route)
+                    }
+                )
+            }
+            composable(
+                route = Screen.PlaylistDetail.route,
+                arguments = listOf(
+                    navArgument(Screen.ARG_PLAYLIST_ID) {
+                        type = NavType.LongType
+                        defaultValue = 0
+                    }
+                )
+            ) { backStackEntry ->
+                PlaylistDetailScreen(
+                    onSongClick = { song ->
+                        navController.navigate(Screen.Player.createRoute(song.songUri))
+                    }
+                )
             }
             composable(route = Screen.AlbumList.route) {
                 AlbumListScreen(

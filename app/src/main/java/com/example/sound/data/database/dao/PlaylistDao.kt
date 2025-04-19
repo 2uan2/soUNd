@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PlaylistDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(playlist: Playlist)
+    suspend fun insert(playlist: Playlist): Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(playlist: Playlist)
@@ -39,4 +39,7 @@ interface PlaylistDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertCrossRef(crossRef: PlaylistSongCrossRef)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertCrossRefs(crossRef: List<PlaylistSongCrossRef>)
 }

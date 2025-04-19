@@ -1,5 +1,6 @@
 package com.example.sound.ui.playlist
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,6 +10,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.ui.AppViewModelProvider
@@ -18,8 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.sound.ui.home.SongContainer
 
+//const val TAG = "PlaylistEntryScreen"
 @Composable
 fun PlaylistEntryScreen(
+    onCreateButtonClicked: () -> Unit,
     viewModel: PlaylistEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -27,10 +31,17 @@ fun PlaylistEntryScreen(
     var playlistName by remember { mutableStateOf(uiState.playlistName) }
     var songSelections by remember { mutableStateOf(uiState.songSelections) }
 
+    LaunchedEffect(uiState.songSelections) {
+        songSelections = uiState.songSelections
+    }
+
     Column {
         Button(
             onClick = {
-
+                viewModel.setPlaylistName(playlistName)
+                viewModel.setSongSelection(songSelections)
+                viewModel.createPlaylist()
+                onCreateButtonClicked
             }
         ) {
             Text(text = "Create playlist")
@@ -42,6 +53,7 @@ fun PlaylistEntryScreen(
         )
 
         LazyColumn {
+            Log.i(TAG, songSelections.toString())
             items(songSelections) { songSelection ->
                 SongSelectionContainer(
                     songSelection = songSelection,

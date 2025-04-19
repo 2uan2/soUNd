@@ -15,9 +15,11 @@ interface BasePlaylistDataSource {
 
     fun getAllPlaylistWithSongs(): Flow<List<PlaylistWithSongs>>
 
-    suspend fun insertPlaylist(playlist: Playlist)
+    suspend fun insertPlaylist(playlist: Playlist): Long
 
     suspend fun insertCrossRef(crossRef: PlaylistSongCrossRef)
+
+    suspend fun insertCrossRefs(crossRef: List<PlaylistSongCrossRef>)
 
     suspend fun deletePlaylist(playlist: Playlist)
 
@@ -43,12 +45,16 @@ class LocalPlaylistDataSource(
         return playlistDao.getAllPlaylistWithSongs()
     }
 
-    override suspend fun insertPlaylist(playlist: Playlist) {
-        playlistDao.insert(playlist)
+    override suspend fun insertPlaylist(playlist: Playlist): Long {
+        return playlistDao.insert(playlist)
     }
 
     override suspend fun insertCrossRef(crossRef: PlaylistSongCrossRef) {
         playlistDao.insertCrossRef(crossRef)
+    }
+
+    override suspend fun insertCrossRefs(crossRef: List<PlaylistSongCrossRef>) {
+        playlistDao.insertCrossRefs(crossRef)
     }
 
     override suspend fun deletePlaylist(playlist: Playlist) {
@@ -58,5 +64,4 @@ class LocalPlaylistDataSource(
     override suspend fun updatePlaylist(playlist: Playlist) {
         playlistDao.update(playlist)
     }
-
 }
