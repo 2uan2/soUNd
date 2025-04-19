@@ -1,5 +1,6 @@
 package com.example.sound.ui
 
+import androidx.lifecycle.createSavedStateHandle
 import com.example.sound.SoundApplication
 import com.example.sound.ui.home.HomeViewModel
 
@@ -21,6 +22,10 @@ import com.example.sound.ui.home.HomeViewModel
 
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.sound.ui.album.AlbumDetailViewModel
+import com.example.sound.ui.album.AlbumListViewModel
+import com.example.sound.ui.playlist.PlaylistEntryViewModel
+import com.example.sound.ui.playlist.PlaylistListViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire Inventory app
@@ -30,6 +35,34 @@ object AppViewModelProvider {
         // Initializer for HomeViewModel
         initializer {
             HomeViewModel(SoundApplication.container.songStore)
+        }
+
+        initializer {
+            AlbumListViewModel(
+                SoundApplication.container.playlistDataSource,
+                SoundApplication.container.songStore
+            )
+        }
+
+        initializer {
+            AlbumDetailViewModel(
+                SoundApplication.container.songStore,
+                this.createSavedStateHandle()
+            )
+        }
+
+        initializer {
+            PlaylistListViewModel(
+                SoundApplication.container.playlistDataSource,
+
+            )
+        }
+
+        initializer {
+            PlaylistEntryViewModel(
+                SoundApplication.container.playlistDataSource,
+                SoundApplication.container.songStore,
+            )
         }
     }
 }

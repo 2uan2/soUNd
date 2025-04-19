@@ -15,7 +15,7 @@ const val TAG = "HomeViewModel"
 class HomeViewModel(
     private val songDataSource: BaseSongDataSource
 ) : ViewModel() {
-    var uiState: StateFlow<HomeUiState> =
+    private val _uiState: StateFlow<HomeUiState> =
         songDataSource.getAllSongs().map { HomeUiState(it) }
             .stateIn(
                 scope = viewModelScope,
@@ -23,14 +23,15 @@ class HomeViewModel(
                 initialValue = HomeUiState()
             )
 
-    init {
-        refreshSongs()
-    }
+    val uiState: StateFlow<HomeUiState> = _uiState
+//    init {
+//        refreshSongs()
+//    }
 
     fun refreshSongs() {
         viewModelScope.launch {
             Log.i(TAG, "song refreshed")
-            Log.i(TAG, "Songs: ${uiState.value.songs}")
+            Log.i(TAG, "Songs: ${_uiState.value.songs}")
             songDataSource.refreshSongs()
         }
     }

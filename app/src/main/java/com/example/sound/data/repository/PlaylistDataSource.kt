@@ -11,7 +11,9 @@ interface BasePlaylistDataSource {
 
     fun getAllPlaylist(): Flow<List<Playlist>>
 
-    suspend fun getPlaylistWithSongs(id: Long): Flow<PlaylistWithSongs>
+    fun getPlaylistWithSongs(id: Long): Flow<PlaylistWithSongs>
+
+    fun getAllPlaylistWithSongs(): Flow<List<PlaylistWithSongs>>
 
     suspend fun insertPlaylist(playlist: Playlist)
 
@@ -33,8 +35,12 @@ class LocalPlaylistDataSource(
         return playlistDao.getAllPlaylist()
     }
 
-    override suspend fun getPlaylistWithSongs(id: Long): Flow<PlaylistWithSongs> {
+    override fun getPlaylistWithSongs(id: Long): Flow<PlaylistWithSongs> {
         return playlistDao.getPlaylistWithSongs(id)
+    }
+
+    override fun getAllPlaylistWithSongs(): Flow<List<PlaylistWithSongs>> {
+        return playlistDao.getAllPlaylistWithSongs()
     }
 
     override suspend fun insertPlaylist(playlist: Playlist) {

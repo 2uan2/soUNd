@@ -47,7 +47,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     var queryText by remember { mutableStateOf("") }
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     var isSearchActive by remember { mutableStateOf(false) }
 
@@ -70,7 +70,7 @@ fun HomeScreen(
         HomeBody(
             onSongClick = onSongClick,
             viewModel = viewModel,
-            songList = uiState.value.songs,
+            songList = uiState.songs,
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding),
