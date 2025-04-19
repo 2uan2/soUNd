@@ -41,7 +41,7 @@ fun PlaylistEntryScreen(
                 viewModel.setPlaylistName(playlistName)
                 viewModel.setSongSelection(songSelections)
                 viewModel.createPlaylist()
-                onCreateButtonClicked
+                onCreateButtonClicked()
             }
         ) {
             Text(text = "Create playlist")
