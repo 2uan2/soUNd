@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,6 +52,12 @@ fun HomeScreen(
 
     var isSearchActive by remember { mutableStateOf(false) }
 
+    val songList = uiState.songs.filter {
+        it.name.contains(queryText, ignoreCase = true) ||
+                it.artist?.contains(queryText, ignoreCase = true) == true
+    }
+
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -58,19 +65,29 @@ fun HomeScreen(
                 modifier = modifier.padding(16.dp),
                 query = queryText,
                 onQueryChange = { queryText = it },
-                onSearch = { isSearchActive = false },
-                active = isSearchActive,
+                onSearch = { },
+                active = false,
                 onActiveChange = { isSearchActive = it },
                 placeholder = { Text("Search for songs") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                trailingIcon = { Icon(Icons.Default.AccountCircle, contentDescription = "Account") }
+                trailingIcon = {
+                    if (queryText.isNotEmpty()) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Clear",
+                            modifier = Modifier.clickable { queryText = "" }
+                        )
+                    } else {
+                        Icon(Icons.Default.AccountCircle, contentDescription = "Account")
+                    }
+                }
             ) {}
         },
     ) { innerPadding ->
         HomeBody(
             onSongClick = onSongClick,
             viewModel = viewModel,
-            songList = uiState.songs,
+            songList = songList, // ✅ now you're passing the filtered list
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding),
