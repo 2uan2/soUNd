@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.R
 import com.example.sound.data.database.model.Song
 import com.example.sound.ui.AppViewModelProvider
+import com.example.sound.ui.player.PlayerViewModel
 import com.example.sound.ui.player.formatTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,6 +47,7 @@ fun HomeScreen(
     onSongClick: (Song) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    playerViewModel: PlayerViewModel = viewModel() // <-- Add this
 ) {
     var queryText by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
@@ -85,7 +87,13 @@ fun HomeScreen(
         },
     ) { innerPadding ->
         HomeBody(
-            onSongClick = onSongClick,
+            onSongClick = { selectedSong ->
+                playerViewModel.setPlaylist(
+                    songList,
+                    selectedSong
+                ) // ✅ Set the playlist and current song
+                onSongClick(selectedSong) // Optionally still navigate or just keep screen
+            },
             viewModel = viewModel,
             songList = songList, // ✅ now you're passing the filtered list
             modifier = modifier
@@ -154,7 +162,7 @@ fun SongContainer(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(8.dp)
             )
-            Text(text = "${song.artist}")
+            Text(text = song.artist ?: "Unknown artist")
         }
         Spacer(modifier = Modifier.weight(1f))
         Text(text = formatTime(song.duration))

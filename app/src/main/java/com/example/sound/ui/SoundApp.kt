@@ -2,10 +2,13 @@ package com.example.sound.ui
 
 import android.net.Uri
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,6 +19,7 @@ import com.example.sound.ui.album.AlbumDetailScreen
 import com.example.sound.ui.album.AlbumListScreen
 import com.example.sound.ui.home.HomeScreen
 import com.example.sound.ui.player.PlayerScreen
+import com.example.sound.ui.player.PlayerViewModel
 import com.example.sound.ui.playlist.PlaylistDetailScreen
 import com.example.sound.ui.playlist.PlaylistEntryScreen
 import com.example.sound.ui.playlist.PlaylistListScreen
@@ -23,7 +27,7 @@ import com.example.sound.ui.shared.MyBottomBar
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
-    object Player : Screen("player/{$ARG_SONG_URI}") {
+    object Player : Screen("player}") {
         fun createRoute(songUri: String) = "player/${Uri.encode(songUri)}"
     }
     object AlbumList: Screen("album")
@@ -37,9 +41,9 @@ sealed class Screen(val route: String) {
     }
 
     companion object {
-        val ARG_SONG_URI = "songUri"
-        val ARG_ALBUM_NAME = "albumName"
-        val ARG_PLAYLIST_ID = "playlistId"
+        const val ARG_SONG_URI = "songUri"
+        const val ARG_ALBUM_NAME = "albumName"
+        const val ARG_PLAYLIST_ID = "playlistId"
     }
 }
 
@@ -49,6 +53,8 @@ fun SoundApp(
 
 ) {
     val navController: NavHostController = rememberNavController()
+    val playerViewModel: PlayerViewModel = viewModel(LocalContext.current as ComponentActivity)
+
 
     Scaffold(
         bottomBar = { MyBottomBar(navController) }
@@ -60,11 +66,8 @@ fun SoundApp(
         ) {
             composable(route = Screen.Home.route) {
                 HomeScreen(
-                    onSongClick = { song ->
-                        Log.i(TAG, song.songUri)
-                        Log.i(TAG, Screen.Player.createRoute(song.songUri))
-                        navController.navigate(Screen.Player.createRoute(song.songUri))
-                    }
+                    onSongClick = {},
+                    playerViewModel = playerViewModel
                 )
             }
             composable(route = Screen.PlaylistList.route) {
@@ -122,19 +125,8 @@ fun SoundApp(
                     }
                 )
             }
-            composable(
-                route = Screen.Player.route,
-                arguments = listOf(
-                    navArgument(Screen.ARG_SONG_URI) {
-                        type = NavType.StringType
-                        defaultValue = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-                    }
-                )
-            ) {
-                Log.i(TAG, it.arguments?.getString(Screen.ARG_SONG_URI).toString())
-                PlayerScreen(
-                    songUri = it.arguments?.getString(Screen.ARG_SONG_URI).toString()
-                )
+            composable(route = Screen.Player.route) {
+                PlayerScreen(playerViewModel = playerViewModel)
             }
         }
     }

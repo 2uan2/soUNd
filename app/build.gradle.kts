@@ -50,6 +50,8 @@ dependencies {
     implementation("androidx.media3:media3-session:1.6.0")
     implementation("androidx.media3:media3-common:1.6.0")
 
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
