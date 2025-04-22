@@ -92,7 +92,7 @@ fun HomeScreen(
                     songList,
                     selectedSong
                 ) // ✅ Set the playlist and current song
-                onSongClick(selectedSong) // Optionally still navigate or just keep screen
+                onSongClick(selectedSong)
             },
             viewModel = viewModel,
             songList = songList, // ✅ now you're passing the filtered list

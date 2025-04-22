@@ -27,7 +27,7 @@ import com.example.sound.ui.shared.MyBottomBar
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
-    object Player : Screen("player}") {
+    object Player : Screen("player") {
         fun createRoute(songUri: String) = "player/${Uri.encode(songUri)}"
     }
     object AlbumList: Screen("album")

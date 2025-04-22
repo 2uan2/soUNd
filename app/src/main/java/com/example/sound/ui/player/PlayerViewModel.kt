@@ -32,4 +32,20 @@ class PlayerViewModel : ViewModel() {
         _currentSong.value = startFrom
     }
 
+//    fun playNextSong() {
+//        val list = _playlist.value
+//        if (list.isNotEmpty() && currentIndex < list.size - 1) {
+//            currentIndex++
+//            _currentSong.value = list[currentIndex]
+//        }
+//    }
+//
+//    fun playPreviousSong() {
+//        val list = _playlist.value
+//        if (list.isNotEmpty() && currentIndex > 0) {
+//            currentIndex--
+//            _currentSong.value = list[currentIndex]
+//        }
+//    }
+
 }
