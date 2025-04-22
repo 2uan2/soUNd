@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -44,21 +45,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.common.MediaItem
 import coil.compose.rememberAsyncImagePainter
 import com.example.sound.R
 import com.example.sound.musicService.rememberMediaController
+import com.example.sound.ui.AppViewModelProvider
+import com.example.sound.ui.player.PlayerViewModel.RepeatMode
 import kotlinx.coroutines.delay
 
 const val TAG = "PlayerScreen"
 
 @Composable
-fun PlayerScreen(playerViewModel: PlayerViewModel = viewModel()) {
+fun PlayerScreen(
+    playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
     val context = LocalContext.current
     val controller = rememberMediaController(context)
-
     val currentSong by playerViewModel.currentSong.collectAsState()
 
     var isPlaying by remember { mutableStateOf(false) }
@@ -66,30 +68,29 @@ fun PlayerScreen(playerViewModel: PlayerViewModel = viewModel()) {
     var duration by remember { mutableLongStateOf(0L) }
     var position by remember { mutableLongStateOf(0L) }
     var userSeeking by remember { mutableStateOf(false) }
-
     var sliderPosition by remember { mutableFloatStateOf(0f) }
 
+    val isShuffling by remember { derivedStateOf { playerViewModel.isShuffling } }
+    val repeatMode by remember { derivedStateOf { playerViewModel.repeatMode } }
 
-    // Set media item once
+    // Gán controller cho ViewModel
+    LaunchedEffect(controller) {
+        controller?.let {
+            playerViewModel.setMediaController(it)
+        }
+    }
+    // Theo dõi bài hát hiện tại và khởi động phát
     LaunchedEffect(currentSong, controller) {
         currentSong?.let { song ->
-            val currentUri = controller?.currentMediaItem?.mediaId
-            val targetUri = song.songUri
-            if (currentUri != targetUri) {
-                controller?.setMediaItem(
-                    MediaItem.Builder()
-                        .setUri(targetUri.toUri())
-                        .setMediaId(targetUri) // ensure mediaId is set
-                        .build()
-                )
-                controller?.prepare()
-                controller?.play()
+            if (controller?.currentMediaItem?.mediaId != song.songUri) {
+                playerViewModel.playSong(song)
                 isPrepared = true
                 isPlaying = true
             }
         }
     }
 
+    // Theo dõi vị trí phát
     LaunchedEffect(controller, isPlaying) {
         while (true) {
             if (!userSeeking && isPlaying) {
@@ -97,6 +98,18 @@ fun PlayerScreen(playerViewModel: PlayerViewModel = viewModel()) {
                     position = it.currentPosition
                     duration = it.duration.coerceAtLeast(0L)
                     sliderPosition = if (duration > 0) position.toFloat() / duration else 0f
+
+                    // 👇 Check kết thúc bài
+                    if (position >= duration && duration > 0) {
+                        when (playerViewModel.repeatMode) {
+                            RepeatMode.REPEAT_ONE -> {
+                                controller.seekTo(0)
+                                controller.play()
+                            }
+
+                            else -> playerViewModel.playNext()
+                        }
+                    }
                 }
             }
             delay(500)
@@ -183,10 +196,14 @@ fun PlayerScreen(playerViewModel: PlayerViewModel = viewModel()) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { /* Shuffle */ }) {
-                    Icon(Icons.Default.Shuffle, contentDescription = "Shuffle", tint = Color.Gray)
+                IconButton(onClick = { playerViewModel.toggleShuffle() }) {
+                    Icon(
+                        Icons.Default.Shuffle,
+                        contentDescription = "Shuffle",
+                        tint = if (isShuffling) Color.Green else Color.Gray
+                    )
                 }
-                IconButton(onClick = { /* Previous */ }) {
+                IconButton(onClick = { playerViewModel.playPrevious() }) {
                     Icon(
                         Icons.Default.SkipPrevious,
                         contentDescription = "Previous",
@@ -207,7 +224,7 @@ fun PlayerScreen(playerViewModel: PlayerViewModel = viewModel()) {
                         modifier = Modifier.size(40.dp)
                     )
                 }
-                IconButton(onClick = { /* Next */ }) {
+                IconButton(onClick = { playerViewModel.playNext() }) {
                     Icon(
                         Icons.Default.SkipNext,
                         contentDescription = "Next",
@@ -215,8 +232,16 @@ fun PlayerScreen(playerViewModel: PlayerViewModel = viewModel()) {
                         modifier = Modifier.size(40.dp)
                     )
                 }
-                IconButton(onClick = { /* Repeat */ }) {
-                    Icon(Icons.Default.Repeat, contentDescription = "Repeat", tint = Color.Gray)
+                IconButton(onClick = { playerViewModel.toggleRepeat() }) {
+                    Icon(
+                        Icons.Default.Repeat,
+                        contentDescription = "Repeat",
+                        tint = when (repeatMode) {
+                            RepeatMode.REPEAT_ALL -> Color.Green
+                            RepeatMode.REPEAT_ONE -> Color.Yellow
+                            else -> Color.Gray
+                        }
+                    )
                 }
             }
         }

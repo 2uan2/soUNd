@@ -30,10 +30,12 @@ sealed class Screen(val route: String) {
     object Player : Screen("player") {
         fun createRoute(songUri: String) = "player/${Uri.encode(songUri)}"
     }
-    object AlbumList: Screen("album")
+
+    object AlbumList : Screen("album")
     object AlbumDetail : Screen("album/{$ARG_ALBUM_NAME}") {
         fun createRoute(albumName: String) = "album/${Uri.encode(albumName)}"
     }
+
     object PlaylistList : Screen("playlist")
     object PlaylistEntry : Screen("playlist_entry")
     object PlaylistDetail : Screen("playlist/{$ARG_PLAYLIST_ID}") {
@@ -48,12 +50,17 @@ sealed class Screen(val route: String) {
 }
 
 const val TAG = "SoundApp"
+
 @Composable
 fun SoundApp(
 
 ) {
     val navController: NavHostController = rememberNavController()
-    val playerViewModel: PlayerViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val context = LocalContext.current
+    val playerViewModel: PlayerViewModel = viewModel(
+        viewModelStoreOwner = context as ComponentActivity,
+        factory = AppViewModelProvider.Factory
+    )
 
 
     Scaffold(

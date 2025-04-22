@@ -1,9 +1,5 @@
 package com.example.sound.ui
 
-import androidx.lifecycle.createSavedStateHandle
-import com.example.sound.SoundApplication
-import com.example.sound.ui.home.HomeViewModel
-
 /*
  * Copyright (C) 2023 The Android Open Source Project
  *
@@ -20,10 +16,13 @@ import com.example.sound.ui.home.HomeViewModel
  * limitations under the License.
  */
 
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.sound.SoundApplication
 import com.example.sound.ui.album.AlbumDetailViewModel
 import com.example.sound.ui.album.AlbumListViewModel
+import com.example.sound.ui.home.HomeViewModel
 import com.example.sound.ui.playlist.PlaylistDetailViewModel
 import com.example.sound.ui.playlist.PlaylistEntryViewModel
 import com.example.sound.ui.playlist.PlaylistListViewModel
@@ -56,7 +55,7 @@ object AppViewModelProvider {
             PlaylistListViewModel(
                 SoundApplication.container.playlistDataSource,
 
-            )
+                )
         }
 
         initializer {
@@ -70,6 +69,12 @@ object AppViewModelProvider {
             PlaylistDetailViewModel(
                 SoundApplication.container.playlistDataSource,
                 this.createSavedStateHandle(),
+            )
+        }
+
+        initializer {
+            com.example.sound.ui.player.PlayerViewModel(
+                SoundApplication.container.playlistDataSource
             )
         }
     }

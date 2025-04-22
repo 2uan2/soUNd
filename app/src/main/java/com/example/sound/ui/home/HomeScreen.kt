@@ -88,10 +88,7 @@ fun HomeScreen(
     ) { innerPadding ->
         HomeBody(
             onSongClick = { selectedSong ->
-                playerViewModel.setPlaylist(
-                    songList,
-                    selectedSong
-                ) // ✅ Set the playlist and current song
+                playerViewModel.setCustomPlaylist(songList, selectedSong)
                 onSongClick(selectedSong)
             },
             viewModel = viewModel,
