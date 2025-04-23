@@ -47,7 +47,7 @@ fun HomeScreen(
     onSongClick: (Song) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    playerViewModel: PlayerViewModel = viewModel() // <-- Add this
+    playerViewModel: PlayerViewModel = viewModel()
 ) {
     var queryText by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
@@ -58,7 +58,6 @@ fun HomeScreen(
         it.name.contains(queryText, ignoreCase = true) ||
                 it.artist?.contains(queryText, ignoreCase = true) == true
     }
-
 
     Scaffold(
         modifier = modifier,
@@ -100,7 +99,6 @@ fun HomeScreen(
 
     }
 }
-
 
 @Composable
 fun HomeBody(

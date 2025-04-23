@@ -105,11 +105,13 @@ fun SoundApp(
                 )
             ) { backStackEntry ->
                 PlaylistDetailScreen(
+                    playerViewModel = playerViewModel,
                     onSongClick = { song ->
-                        navController.navigate(Screen.Player.createRoute(song.songUri))
+                        navController.navigate(Screen.Player.route)
                     }
                 )
             }
+
             composable(route = Screen.AlbumList.route) {
                 AlbumListScreen(
                     onAlbumClick = { album ->
@@ -128,7 +130,7 @@ fun SoundApp(
             ) { backStackEntry ->
                 AlbumDetailScreen(
                     onSongClick = { song ->
-                        navController.navigate(Screen.Player.createRoute(song.songUri))
+                        navController.navigate(Screen.Player.route)
                     }
                 )
             }

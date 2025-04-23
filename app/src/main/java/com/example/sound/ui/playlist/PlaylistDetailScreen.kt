@@ -11,11 +11,13 @@ import com.example.sound.ui.AppViewModelProvider
 import androidx.compose.runtime.getValue
 import com.example.sound.data.database.model.Song
 import com.example.sound.ui.home.SongContainer
+import com.example.sound.ui.player.PlayerViewModel
 
 @Composable
 fun PlaylistDetailScreen(
     onSongClick: (Song) -> Unit,
-    viewModel: PlaylistDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: PlaylistDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -28,7 +30,10 @@ fun PlaylistDetailScreen(
                 // TODO change to different component or make SongContainer shared maybe idk...
                 SongContainer(
                     song = song,
-                    onSongClick = { onSongClick(song) }
+                    onSongClick = {
+                        playerViewModel.setCustomPlaylist(uiState.songs, song)
+                        onSongClick(song)
+                    }
                 )
             }
         }
