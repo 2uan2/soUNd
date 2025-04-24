@@ -103,11 +103,16 @@ fun SoundApp(
                         defaultValue = 0
                     }
                 )
-            ) { backStackEntry ->
+            ) {
                 PlaylistDetailScreen(
                     playerViewModel = playerViewModel,
                     onSongClick = { song ->
                         navController.navigate(Screen.Player.route)
+                    },
+                    onPlaylistDeleted = {
+                        navController.navigate(Screen.PlaylistList.route) {
+                            popUpTo(Screen.PlaylistList.route) { inclusive = true }
+                        }
                     }
                 )
             }

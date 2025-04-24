@@ -30,6 +30,8 @@ fun PlaylistEntryScreen(
 
     var playlistName by remember { mutableStateOf(uiState.playlistName) }
     var songSelections by remember { mutableStateOf(uiState.songSelections) }
+    val isNameEmpty = playlistName.isBlank()
+    var showError by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.songSelections) {
         songSelections = uiState.songSelections
@@ -38,19 +40,36 @@ fun PlaylistEntryScreen(
     Column {
         Button(
             onClick = {
-                viewModel.setPlaylistName(playlistName)
-                viewModel.setSongSelection(songSelections)
-                viewModel.createPlaylist()
-                onCreateButtonClicked()
-            }
+                if (playlistName.isNotBlank()) {
+                    viewModel.setPlaylistName(playlistName)
+                    viewModel.setSongSelection(songSelections)
+                    viewModel.createPlaylist()
+                    onCreateButtonClicked()
+                } else {
+                    showError = true
+                }
+            },
+            enabled = !isNameEmpty
         ) {
             Text(text = "Create playlist")
         }
 
         TextField(
             value = playlistName,
-            onValueChange = { playlistName = it }
+            onValueChange = {
+                playlistName = it
+                showError = false
+            },
+            label = { Text("Playlist Name") },
+            isError = showError
         )
+
+        if (showError) {
+            Text(
+                text = "Playlist name cannot be empty",
+                color = androidx.compose.ui.graphics.Color.Red
+            )
+        }
 
         LazyColumn {
             Log.i(TAG, songSelections.toString())
@@ -69,6 +88,7 @@ fun PlaylistEntryScreen(
                 )
             }
         }
+
     }
 }
 

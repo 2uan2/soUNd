@@ -51,8 +51,6 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
         isShuffling = !isShuffling
     }
 
-
-
     fun setMediaController(controller: MediaController) {
         mediaController = controller
     }
@@ -61,7 +59,7 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
         viewModelScope.launch {
             playlistDataSource.getPlaylistWithSongs(playlistId).collect { playlistWithSongs ->
                 _currentPlaylist.value = playlistWithSongs
-                playlistWithSongs.songs.firstOrNull()?.let { playSong(it) }
+                playlistWithSongs?.songs?.firstOrNull()?.let { playSong(it) }
             }
         }
     }
@@ -95,7 +93,6 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
         }
     }
 
-
     fun playPrevious() {
         val songs = _currentPlaylist.value?.songs ?: return
         val currentIndex = songs.indexOfFirst { it.songUri == _currentSong.value?.songUri }
@@ -112,13 +109,22 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
         }
     }
 
-    //Load temp playlist from home screen
     fun setCustomPlaylist(songs: List<Song>, startSong: Song) {
         _currentPlaylist.value = PlaylistWithSongs(
-            playlist = Playlist(name = "Custom Playlist"),
+            playlist = Playlist(playlistId = -1, name = "Custom Playlist"),
             songs = songs
         )
         playSong(startSong)
     }
 
+    fun isCurrentPlaylist(playlistId: Long): Boolean {
+        return _currentPlaylist.value?.playlist?.playlistId == playlistId
+    }
+
+    fun resetIfCurrentPlaylistIs(playlistId: Long, fallbackSongs: List<Song>) {
+        if (isCurrentPlaylist(playlistId)) {
+            val fallbackSong = fallbackSongs.firstOrNull() ?: return
+            setCustomPlaylist(fallbackSongs, fallbackSong)
+        }
+    }
 }

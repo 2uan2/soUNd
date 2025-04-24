@@ -3,6 +3,7 @@ package com.example.sound.ui.playlist
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,6 +19,7 @@ fun PlaylistDetailScreen(
     onSongClick: (Song) -> Unit,
     viewModel: PlaylistDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
     playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onPlaylistDeleted: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -25,6 +27,11 @@ fun PlaylistDetailScreen(
         Text(
             text = uiState.playlist.name
         )
+        Button(onClick = {
+            viewModel.deletePlaylist(onDeleted = onPlaylistDeleted)
+        }) {
+            Text("Delete Playlist")
+        }
         LazyColumn {
             items(uiState.songs) { song ->
                 // TODO change to different component or make SongContainer shared maybe idk...
