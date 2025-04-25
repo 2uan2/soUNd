@@ -8,7 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import com.example.sound.ui.SoundApp
+import com.example.sound.ui.loginPage.LoginScreen
+import com.example.sound.ui.loginPage.SignupScreen
 import com.example.sound.ui.theme.SoUNdTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,8 +24,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SoUNdTheme {
-                SoundApp()
+//                SoundApp()
+//                LoginScreen()
+                SignupScreen()
             }
+
         }
     }
 }

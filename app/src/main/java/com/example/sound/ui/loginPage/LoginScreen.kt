@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,11 +37,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.R
+import com.example.sound.ui.loginPage.authService.AuthUiState
+import com.example.sound.ui.loginPage.authService.AuthViewModel
+import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
 
 @Preview(showBackground = true)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory()),
+    onLoginSuccess: () -> Unit = {}  // callback nếu muốn chuyển màn sau khi login thành công
+) {
+    var user by remember { mutableStateOf("") }
+    var pass by remember { mutableStateOf("") }
+    val authState = authViewModel.authState
+
     Column(
         Modifier
             .fillMaxWidth()
@@ -67,8 +79,8 @@ fun LoginScreen() {
             color = Color("#7d32a8".toColorInt())
         )
 
-        var user by remember { mutableStateOf("Username") }
-        var pass by remember { mutableStateOf("Password") }
+//        var user by remember { mutableStateOf("Username") }
+//        var pass by remember { mutableStateOf("Password") }
         var passwordVisible by remember { mutableStateOf(false) }
 
 
@@ -122,21 +134,29 @@ fun LoginScreen() {
         )
 
         Button(
-            onClick = {},
-            Modifier
+            onClick = {
+                authViewModel.login(user, pass)
+            },
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(66.dp)
                 .padding(start = 64.dp, end = 64.dp, top = 8.dp, bottom = 8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color("#7d32a8".toColorInt())),
             shape = RoundedCornerShape(50)
-
         ) {
-            Text(
-                text = "Login",
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Login", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        }
+
+        when (authState) {
+            is AuthUiState.Loading -> Text("Loading...", color = Color.Gray)
+            is AuthUiState.Error -> Text("Error: ${authState.message}", color = Color.Red)
+            is AuthUiState.Success -> {
+                Text("Login successful!", color = Color.Green)
+                LaunchedEffect(Unit) {
+                    onLoginSuccess()
+                }
+            }
+            else -> {}
         }
         Text(
             text = "Don't remember password? click here",

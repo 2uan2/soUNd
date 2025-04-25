@@ -3,11 +3,24 @@ package com.example.sound.ui.loginPage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,11 +37,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.R
+import com.example.sound.ui.loginPage.authService.AuthUiState
+import com.example.sound.ui.loginPage.authService.AuthViewModel
+import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
 
 @Preview(showBackground = true)
 @Composable
-fun SignupScreen() {
+fun SignupScreen(
+    authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory()),
+    onSignupSuccess: () -> Unit = {}
+) {
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    val authState = authViewModel.authState
+
     Column(
         Modifier
             .fillMaxWidth()
@@ -56,14 +82,11 @@ fun SignupScreen() {
             color = Color("#7d32a8".toColorInt())
         )
 
-        var username by remember { mutableStateOf("Username") }
-        var email by remember { mutableStateOf("Email Address") }
-        var password by remember { mutableStateOf("Password") }
-        var passwordVisible by remember { mutableStateOf(false) }
-
         // Username
         TextField(
-            value = username, { username = it },
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(66.dp)
@@ -87,7 +110,9 @@ fun SignupScreen() {
 
         // Email
         TextField(
-            value = email, { email = it },
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(66.dp)
@@ -112,7 +137,9 @@ fun SignupScreen() {
 
         // Password
         TextField(
-            value = password, { password = it },
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(66.dp)
@@ -138,7 +165,7 @@ fun SignupScreen() {
 
         // Signup button
         Button(
-            onClick = { /* Handle signup */ },
+            onClick = { authViewModel.register(username, email, password) },
             Modifier
                 .fillMaxWidth()
                 .height(66.dp)
@@ -152,6 +179,19 @@ fun SignupScreen() {
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
+        }
+
+        when (authState) {
+            is AuthUiState.Loading -> Text("Registering...", color = Color.Gray)
+            is AuthUiState.Error -> Text("Error: ${authState.message}", color = Color.Red)
+            is AuthUiState.Success -> {
+                Text("Register Success!", color = Color.Green)
+                LaunchedEffect(Unit) {
+                    onSignupSuccess()
+                }
+            }
+
+            else -> {}
         }
 
         Text(

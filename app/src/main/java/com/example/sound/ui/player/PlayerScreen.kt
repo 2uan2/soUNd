@@ -53,7 +53,6 @@ import com.example.sound.ui.AppViewModelProvider
 import com.example.sound.ui.player.PlayerViewModel.RepeatMode
 import kotlinx.coroutines.delay
 
-const val TAG = "PlayerScreen"
 
 @Composable
 fun PlayerScreen(
