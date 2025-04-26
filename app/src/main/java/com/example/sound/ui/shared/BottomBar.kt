@@ -1,6 +1,7 @@
 package com.example.sound.ui.shared
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryMusic
@@ -48,6 +49,11 @@ fun MyBottomBar(navController: NavController) {
             title = "Playlist",
             icon = Icons.Default.LibraryMusic,
             screen = Screen.PlaylistList
+        ),
+        BottomNavItem(
+            title = "Login",
+            icon = Icons.Default.AccountCircle,
+            screen = Screen.Login
         )
     )
 

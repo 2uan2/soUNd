@@ -23,6 +23,7 @@ import com.example.sound.SoundApplication
 import com.example.sound.ui.album.AlbumDetailViewModel
 import com.example.sound.ui.album.AlbumListViewModel
 import com.example.sound.ui.home.HomeViewModel
+import com.example.sound.ui.player.PlayerViewModel
 import com.example.sound.ui.playlist.PlaylistDetailViewModel
 import com.example.sound.ui.playlist.PlaylistEntryViewModel
 import com.example.sound.ui.playlist.PlaylistListViewModel
@@ -73,7 +74,7 @@ object AppViewModelProvider {
         }
 
         initializer {
-            com.example.sound.ui.player.PlayerViewModel(
+            PlayerViewModel(
                 SoundApplication.container.playlistDataSource
             )
         }

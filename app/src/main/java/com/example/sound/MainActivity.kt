@@ -11,6 +11,7 @@ import androidx.core.app.ActivityCompat
 import com.example.sound.ui.loginPage.LoginScreen
 import com.example.sound.ui.loginPage.SignupScreen
 import com.example.sound.ui.theme.SoUNdTheme
+import com.example.sound.ui.SoundApp
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -24,9 +25,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SoUNdTheme {
-//                SoundApp()
+                SoundApp()
 //                LoginScreen()
-                SignupScreen()
+//                SignupScreen()
             }
 
         }

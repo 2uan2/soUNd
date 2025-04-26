@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -15,9 +16,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.sound.data.repository.TokenRepository
 import com.example.sound.ui.album.AlbumDetailScreen
 import com.example.sound.ui.album.AlbumListScreen
 import com.example.sound.ui.home.HomeScreen
+import com.example.sound.ui.loginPage.LoginScreen
+import com.example.sound.ui.loginPage.SignupScreen
 import com.example.sound.ui.player.PlayerScreen
 import com.example.sound.ui.player.PlayerViewModel
 import com.example.sound.ui.playlist.PlaylistDetailScreen
@@ -42,6 +46,9 @@ sealed class Screen(val route: String) {
         fun createRoute(playlistId: Long) = "playlist/$playlistId"
     }
 
+    object Login : Screen("login")
+    object Signup : Screen("register")
+
     companion object {
         const val ARG_SONG_URI = "songUri"
         const val ARG_ALBUM_NAME = "albumName"
@@ -61,6 +68,7 @@ fun SoundApp(
         viewModelStoreOwner = context as ComponentActivity,
         factory = AppViewModelProvider.Factory
     )
+    val tokenManager = remember { TokenRepository(context) }
 
 
     Scaffold(
@@ -71,6 +79,24 @@ fun SoundApp(
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(route = Screen.Login.route) {
+                LoginScreen(
+                    onLoginSuccess = { token ->
+                        tokenManager.putToken(token)
+                        navController.navigate(Screen.Home.route)
+                        Log.i("SoundApp", tokenManager.getToken() ?: "no token lol")
+                    }
+                )
+            }
+            composable(route = Screen.Signup.route) {
+                SignupScreen(
+                    onSignupSuccess = { token ->
+                        tokenManager.putToken(token)
+                        navController.navigate(Screen.Home.route)
+                        Log.i("SoundApp", tokenManager.getToken() ?: "no token lol")
+                    }
+                )
+            }
             composable(route = Screen.Home.route) {
                 HomeScreen(
                     onSongClick = {},

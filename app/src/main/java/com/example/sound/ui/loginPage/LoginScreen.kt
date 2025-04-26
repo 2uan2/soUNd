@@ -47,7 +47,7 @@ import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory()),
-    onLoginSuccess: () -> Unit = {}  // callback nếu muốn chuyển màn sau khi login thành công
+    onLoginSuccess: (String) -> Unit = {}  // callback nếu muốn chuyển màn sau khi login thành công
 ) {
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
@@ -153,7 +153,7 @@ fun LoginScreen(
             is AuthUiState.Success -> {
                 Text("Login successful!", color = Color.Green)
                 LaunchedEffect(Unit) {
-                    onLoginSuccess()
+                    onLoginSuccess(authState.token)
                 }
             }
             else -> {}

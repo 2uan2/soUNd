@@ -47,7 +47,7 @@ import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
 @Composable
 fun SignupScreen(
     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory()),
-    onSignupSuccess: () -> Unit = {}
+    onSignupSuccess: (String) -> Unit = {}
 ) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -187,7 +187,7 @@ fun SignupScreen(
             is AuthUiState.Success -> {
                 Text("Register Success!", color = Color.Green)
                 LaunchedEffect(Unit) {
-                    onSignupSuccess()
+                    onSignupSuccess(authState.token)
                 }
             }
 
