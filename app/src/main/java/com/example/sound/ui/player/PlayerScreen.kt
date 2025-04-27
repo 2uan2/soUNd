@@ -1,6 +1,8 @@
 package com.example.sound.ui.player
 
 import android.annotation.SuppressLint
+import android.content.ContentUris
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -61,6 +63,7 @@ fun PlayerScreen(
     val context = LocalContext.current
     val controller = rememberMediaController(context)
     val currentSong by playerViewModel.currentSong.collectAsState()
+    val albumId = currentSong?.albumId
 
     var isPlaying by remember { mutableStateOf(false) }
     var isPrepared by remember { mutableStateOf(false) }
@@ -134,8 +137,14 @@ fun PlayerScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            val albumArtUri = if (albumId != null) {
+                ContentUris.withAppendedId(
+                    Uri.parse("content://media/external/audio/albumart"),
+                    albumId
+                )
+            } else null
             val imagePainter = rememberAsyncImagePainter(
-                model = currentSong?.imageUri ?: R.drawable.album_art,
+                model = albumArtUri ?: R.drawable.album_art,
                 placeholder = painterResource(id = R.drawable.album_art),
                 error = painterResource(id = R.drawable.album_art)
             )

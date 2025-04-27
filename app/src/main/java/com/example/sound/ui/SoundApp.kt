@@ -56,8 +56,8 @@ sealed class Screen(val route: String) {
     }
 }
 
-const val TAG = "SoundApp"
 
+const val TAG = "SoundApp"
 @Composable
 fun SoundApp(
 

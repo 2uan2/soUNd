@@ -21,6 +21,7 @@ class MediaStoreDataSource(
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.ALBUM_ID,
         )
 
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
@@ -41,12 +42,15 @@ class MediaStoreDataSource(
             val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
             val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+            val albumId = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
+//            val albumArtUri = cursor.
             while(cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
                 val title = cursor.getString(titleColumn)
                 val artist = cursor.getString(artistColumn)
                 val duration = cursor.getLong(durationColumn)
+                val albumId = cursor.getLong(albumId)
                 val contentUri = ContentUris.withAppendedId(collection, id)
 
                 songList.add(
@@ -55,6 +59,7 @@ class MediaStoreDataSource(
                         name = title,
                         artist = artist,
                         duration = duration,
+                        albumId = albumId,
                     )
                 )
             }

@@ -1,14 +1,19 @@
 package com.example.sound.ui.home
 
+import android.content.ContentUris
+import android.util.Log
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -30,16 +35,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.request.ImageRequest
+import coil3.compose.AsyncImage
 import com.example.sound.R
 import com.example.sound.data.database.model.Song
 import com.example.sound.ui.AppViewModelProvider
 import com.example.sound.ui.player.PlayerViewModel
 import com.example.sound.ui.player.formatTime
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,10 +153,23 @@ fun SongContainer(
             .fillMaxWidth()
             .clickable { onSongClick(song) }
     ) {
-        Image(
-            painter = painterResource(R.drawable.ic_launcher_foreground),
-            contentDescription = null
+        val albumId = song.albumId
+        val albumArtUri = if (albumId != null) {
+            ContentUris.withAppendedId(
+                Uri.parse("content://media/external/audio/albumart"),
+                albumId
+            )
+        } else null
+        AsyncImage(
+            model = albumArtUri ?: R.drawable.faker1,
+            contentDescription = null,
+            modifier = modifier
+                .size(48.dp)
         )
+//        Image(
+//            painter = painterResource(R.drawable.ic_launcher_foreground),
+//            contentDescription = null
+//        )
         Column(
             modifier = modifier
         ) {
