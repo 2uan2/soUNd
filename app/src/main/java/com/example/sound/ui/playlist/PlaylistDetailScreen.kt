@@ -40,7 +40,7 @@ fun PlaylistDetailScreen(
                     onSongClick = {
                         playerViewModel.setCustomPlaylist(uiState.songs, song)
                         onSongClick(song)
-                    }
+                    },
                 )
             }
         }

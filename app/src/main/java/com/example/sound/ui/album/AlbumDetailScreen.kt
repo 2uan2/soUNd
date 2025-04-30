@@ -46,7 +46,7 @@ fun SongList(
             Text(text = song.name)
             SongContainer(
                 song = song,
-                onSongClick = { onSongClick(song) }
+                onSongClick = { onSongClick(song) },
             )
         }
     }

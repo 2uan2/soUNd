@@ -105,7 +105,7 @@ fun SongSelectionContainer(
         // TODO change from using SongContainer to some other custom composable for this screen
         SongContainer(
             song = songSelection.song,
-            onSongClick = { onSelectionChanged(songSelection) }
+            onSongClick = { onSelectionChanged(songSelection) },
         )
     }
 }

@@ -1,8 +1,18 @@
 package com.example.sound.data.repository
 
+import android.util.Log
+import coil.network.HttpException
 import com.example.sound.data.database.dao.SongDao
 import com.example.sound.data.database.model.Song
+import com.example.sound.data.network.RetrofitInstance
+import com.example.sound.data.network.model.SongUploadResponse
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
+import java.io.IOException
 
 interface BaseSongDataSource {
     fun getSong(id: Long): Flow<Song>
@@ -22,11 +32,20 @@ interface BaseSongDataSource {
     suspend fun updateSong(song: Song)
 
     suspend fun refreshSongs()
+
+    suspend fun uploadSong(
+        songName: String,
+        artistName: String,
+        song: File,
+        duration: Long,
+        image: File,
+    ): Result<SongUploadResponse>
 }
 
 class LocalSongDataSource(
     private val songDao: SongDao,
-    private val mediaStore: MediaStoreDataSource
+    private val mediaStore: MediaStoreDataSource,
+    private val tokenManager: TokenRepository,
 ) : BaseSongDataSource {
     override fun getSong(id: Long): Flow<Song> = songDao.getSong(id)
 
@@ -47,5 +66,47 @@ class LocalSongDataSource(
     override suspend fun refreshSongs() {
         val songs = mediaStore.loadSongFromMediaStore()
         songDao.insertAll(songs)
+    }
+
+    override suspend fun uploadSong(
+        songName: String,
+        artistName: String,
+        song: File,
+        duration: Long,
+        image: File,
+    ): Result<SongUploadResponse> {
+        val token = tokenManager.getToken() ?: return Result.failure(Exception("missing token"))
+        try {
+            Log.i("BaseSongDataSource", "token is $token")
+            val response = RetrofitInstance.songApi.uploadSong(
+                authString = "Token $token",
+                songName = songName.toRequestBody("text/plain".toMediaTypeOrNull()),
+                artistName = artistName.toRequestBody("text/plain".toMediaTypeOrNull()),
+                duration = duration.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
+                song = MultipartBody.Part
+                    .createFormData(
+                        "file",
+                        song.name,
+                        song.asRequestBody("audio/mpeg".toMediaTypeOrNull())
+                    ),
+                image = MultipartBody.Part
+                    .createFormData(
+                        "cover_image",
+                        image.name,
+                        image.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                    ),
+            )
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    return Result.success(it)
+                } ?: return Result.failure(Exception("Empty response body"))
+            } else return Result.failure(Exception("Request failed: ${response.code()}, ${response.message()}"))
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return Result.failure(Exception("IOException: ${e.localizedMessage}"))
+        } catch (e: HttpException) {
+            e.printStackTrace()
+            return Result.failure(Exception("HttpException: ${e.localizedMessage}"))
+        }
     }
 }

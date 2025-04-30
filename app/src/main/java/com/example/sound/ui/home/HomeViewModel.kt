@@ -10,13 +10,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.io.File
 
 const val TAG = "HomeViewModel"
+
 class HomeViewModel(
-    private val songDataSource: BaseSongDataSource
+    private val songDataSource: BaseSongDataSource,
 ) : ViewModel() {
     private val _uiState: StateFlow<HomeUiState> =
-        songDataSource.getAllSongs().map { HomeUiState(it) }
+        songDataSource.getAllSongs().map {
+            HomeUiState(it.map { song -> SongContainerUiState(song = song) })
+        }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -24,6 +28,9 @@ class HomeViewModel(
             )
 
     val uiState: StateFlow<HomeUiState> = _uiState
+
+    val songs: StateFlow<List<Song>> = _uiState.map { it.songContainers.map { it.song } }
+        .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 //    init {
 //        refreshSongs()
 //    }
@@ -31,8 +38,23 @@ class HomeViewModel(
     fun refreshSongs() {
         viewModelScope.launch {
             Log.i(TAG, "song refreshed")
-            Log.i(TAG, "Songs: ${_uiState.value.songs}")
+            Log.i(TAG, "Songs: ${_uiState.value.songContainers}")
             songDataSource.refreshSongs()
+        }
+    }
+
+    fun uploadSong(song: Song, songFile: File, albumArtFile: File) {
+        _uiState.map { it.songContainers }
+        _uiState.value
+
+        viewModelScope.launch {
+            songDataSource.uploadSong(
+                songName = song.name,
+                artistName = song.artist ?: "Unknown artist",
+                song = songFile,
+                duration = song.duration,
+                image = albumArtFile,
+            )
         }
     }
 
@@ -42,5 +64,19 @@ class HomeViewModel(
 }
 
 data class HomeUiState(
-    val songs: List<Song> = listOf()
+    val songContainers: List<SongContainerUiState> = listOf()
 )
+
+data class SongContainerUiState(
+    val id: Long = song.songId,
+    val song: Song,
+    val songUploadState: SongUploadUiState = SongUploadUiState.Idle
+)
+
+sealed interface SongUploadUiState {
+    object Idle : SongUploadUiState
+    object Loading : SongUploadUiState
+    data class Success(val song: Song) : SongUploadUiState
+    data class Error(val message: String) : SongUploadUiState
+}
+

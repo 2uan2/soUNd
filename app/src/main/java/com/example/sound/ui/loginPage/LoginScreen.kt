@@ -51,7 +51,7 @@ fun LoginScreen(
 ) {
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
-    val authState = authViewModel.authState
+    val authState = authViewModel.authUiState
 
     Column(
         Modifier
