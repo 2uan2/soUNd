@@ -53,7 +53,7 @@ fun SignupScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    val authState = authViewModel.authState
+    val authState = authViewModel.authUiState
 
     Column(
         Modifier

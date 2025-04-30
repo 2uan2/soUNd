@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,6 +23,8 @@ import com.example.sound.ui.album.AlbumListScreen
 import com.example.sound.ui.home.HomeScreen
 import com.example.sound.ui.loginPage.LoginScreen
 import com.example.sound.ui.loginPage.SignupScreen
+import com.example.sound.ui.loginPage.authService.AuthViewModel
+import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
 import com.example.sound.ui.player.PlayerScreen
 import com.example.sound.ui.player.PlayerViewModel
 import com.example.sound.ui.playlist.PlaylistDetailScreen
@@ -64,12 +67,14 @@ fun SoundApp(
 ) {
     val navController: NavHostController = rememberNavController()
     val context = LocalContext.current
+
     val playerViewModel: PlayerViewModel = viewModel(
         viewModelStoreOwner = context as ComponentActivity,
         factory = AppViewModelProvider.Factory
     )
-    val tokenManager = remember { TokenRepository(context) }
-
+//    val tokenManager = remember { TokenRepository(context) }
+    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory())
+    val authState = authViewModel.authState.collectAsState()
 
     Scaffold(
         bottomBar = { MyBottomBar(navController) }
@@ -81,24 +86,27 @@ fun SoundApp(
         ) {
             composable(route = Screen.Login.route) {
                 LoginScreen(
+                    authViewModel = authViewModel,
                     onLoginSuccess = { token ->
-                        tokenManager.putToken(token)
+//                        tokenManager.putToken(token)
                         navController.navigate(Screen.Home.route)
-                        Log.i("SoundApp", tokenManager.getToken() ?: "no token lol")
+//                        Log.i("SoundApp", tokenManager.getToken() ?: "no token lol")
                     }
                 )
             }
             composable(route = Screen.Signup.route) {
                 SignupScreen(
+                    authViewModel = authViewModel,
                     onSignupSuccess = { token ->
-                        tokenManager.putToken(token)
+//                        tokenManager.putToken(token)
                         navController.navigate(Screen.Home.route)
-                        Log.i("SoundApp", tokenManager.getToken() ?: "no token lol")
+//                        Log.i("SoundApp", tokenManager.getToken() ?: "no token lol")
                     }
                 )
             }
             composable(route = Screen.Home.route) {
                 HomeScreen(
+                    authState = authState.value,
                     onSongClick = {},
                     playerViewModel = playerViewModel
                 )

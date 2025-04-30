@@ -1,15 +1,13 @@
 package com.example.sound.ui.home
 
 import android.content.ContentUris
-import android.util.Log
 import android.net.Uri
-import androidx.compose.foundation.Image
+import android.webkit.MimeTypeMap
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -36,23 +35,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.request.ImageRequest
 import coil3.compose.AsyncImage
 import com.example.sound.R
 import com.example.sound.data.database.model.Song
 import com.example.sound.ui.AppViewModelProvider
 import com.example.sound.ui.player.PlayerViewModel
 import com.example.sound.ui.player.formatTime
-import kotlinx.coroutines.withContext
+import java.io.File
+import androidx.core.net.toUri
+import com.example.sound.ui.loginPage.authService.AuthState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    authState: AuthState,
     onSongClick: (Song) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -60,10 +60,11 @@ fun HomeScreen(
 ) {
     var queryText by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
+    val songs by viewModel.songs.collectAsState()
 
     var isSearchActive by remember { mutableStateOf(false) }
 
-    val songList = uiState.songs.filter {
+    val songList = songs.filter {
         it.name.contains(queryText, ignoreCase = true) ||
                 it.artist?.contains(queryText, ignoreCase = true) == true
     }
@@ -95,6 +96,7 @@ fun HomeScreen(
         },
     ) { innerPadding ->
         HomeBody(
+            songContainerList = uiState.songContainers,
             onSongClick = { selectedSong ->
                 playerViewModel.setCustomPlaylist(songList, selectedSong)
                 onSongClick(selectedSong)
@@ -111,6 +113,7 @@ fun HomeScreen(
 
 @Composable
 fun HomeBody(
+    songContainerList: List<SongContainerUiState>,
     onSongClick: (Song) -> Unit,
     viewModel: HomeViewModel,
     songList: List<Song>,
@@ -132,10 +135,14 @@ fun HomeBody(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(songList) { song ->
+            items(songContainerList) { songContainer ->
                 SongContainer(
-                    song = song,
-                    onSongClick = onSongClick
+                    song = songContainer.song,
+                    songUploadUiState = songContainer.songUploadState,
+                    onSongClick = onSongClick,
+                    onSongShareClick = { song, songFile, albumArtFile ->
+                        viewModel.uploadSong(song, songFile, albumArtFile)
+                    },
                 )
             }
         }
@@ -145,9 +152,13 @@ fun HomeBody(
 @Composable
 fun SongContainer(
     song: Song,
+    songUploadUiState: SongUploadUiState = SongUploadUiState.Idle,
     onSongClick: (Song) -> Unit,
+    onSongShareClick: (Song, File, File) -> Unit = { song, songFile, albumArtFile -> },
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -183,6 +194,42 @@ fun SongContainer(
         }
         Spacer(modifier = Modifier.weight(1f))
         Text(text = formatTime(song.duration))
+
+        Button(
+            onClick = {
+                val albumId = song.albumId
+                val albumArtUri = if (albumId != null) {
+                    ContentUris.withAppendedId(
+                        Uri.parse("content://media/external/audio/albumart"),
+                        albumId
+                    )
+                } else Uri.parse("android.resource://${context.packageName}/R.drawable.faker1")
+
+                val songFile = File(context.cacheDir, "${song.name}.mp3")
+                songFile.createNewFile()
+                context.contentResolver.openInputStream(song.songUri.toUri())?.use { inputStream ->
+                    songFile.outputStream().use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                } ?: throw IllegalArgumentException("Cannot open input stream from: ${song.songUri}")
+
+                val albumArtMimeType = context.contentResolver.getType(albumArtUri)
+                val albumArtExtensionType = MimeTypeMap.getSingleton().getExtensionFromMimeType(albumArtMimeType)
+                val albumArtFile = File(context.cacheDir, "albumArt.${albumArtExtensionType ?: "bin"}")
+                albumArtFile.createNewFile()
+                context.contentResolver.openInputStream(albumArtUri)?.use { inputStream ->
+                    albumArtFile.outputStream().use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                }
+                onSongShareClick(song, songFile, albumArtFile)
+            }
+        ) {
+            Icon(
+                Icons.Default.ArrowUpward,
+                contentDescription = null
+            )
+        }
     }
 }
 
@@ -195,6 +242,9 @@ fun Preview() {
             name = "song",
             duration = 100000,
         ),
-        onSongClick = {}
+        onSongClick = {},
+        onSongShareClick = { song, songFile, albumArtFile ->
+
+        },
     )
 }
