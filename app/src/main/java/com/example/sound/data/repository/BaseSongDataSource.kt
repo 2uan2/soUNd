@@ -76,7 +76,7 @@ class LocalSongDataSource(
         image: File,
     ): Result<SongUploadResponse> {
         val token = tokenManager.getToken() ?: return Result.failure(Exception("missing token"))
-        try {
+        return try {
             Log.i("BaseSongDataSource", "token is $token")
             val response = RetrofitInstance.songApi.uploadSong(
                 authString = "Token $token",
@@ -98,15 +98,15 @@ class LocalSongDataSource(
             )
             if (response.isSuccessful) {
                 response.body()?.let {
-                    return Result.success(it)
-                } ?: return Result.failure(Exception("Empty response body"))
-            } else return Result.failure(Exception("Request failed: ${response.code()}, ${response.message()}"))
+                    Result.success(it)
+                } ?: Result.failure(Exception("Empty response body"))
+            } else Result.failure(Exception("Request failed: ${response.code()}, ${response.message()}"))
         } catch (e: IOException) {
             e.printStackTrace()
-            return Result.failure(Exception("IOException: ${e.localizedMessage}"))
+            Result.failure(Exception("IOException: ${e.localizedMessage}"))
         } catch (e: HttpException) {
             e.printStackTrace()
-            return Result.failure(Exception("HttpException: ${e.localizedMessage}"))
+            Result.failure(Exception("HttpException: ${e.localizedMessage}"))
         }
     }
 }
