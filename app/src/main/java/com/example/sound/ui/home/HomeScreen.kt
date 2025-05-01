@@ -3,6 +3,7 @@ package com.example.sound.ui.home
 import android.content.ContentUris
 import android.net.Uri
 import android.webkit.MimeTypeMap
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +19,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -96,6 +99,7 @@ fun HomeScreen(
         },
     ) { innerPadding ->
         HomeBody(
+            authState = authState,
             songContainerList = uiState.songContainers,
             onSongClick = { selectedSong ->
                 playerViewModel.setCustomPlaylist(songList, selectedSong)
@@ -113,6 +117,7 @@ fun HomeScreen(
 
 @Composable
 fun HomeBody(
+    authState: AuthState,
     songContainerList: List<SongContainerUiState>,
     onSongClick: (Song) -> Unit,
     viewModel: HomeViewModel,
@@ -137,6 +142,7 @@ fun HomeBody(
         ) {
             items(songContainerList) { songContainer ->
                 SongContainer(
+                    authState = authState,
                     song = songContainer.song,
                     songUploadUiState = songContainer.songUploadState,
                     onSongClick = onSongClick,
@@ -152,6 +158,7 @@ fun HomeBody(
 @Composable
 fun SongContainer(
     song: Song,
+    authState: AuthState = AuthState.Unauthenticated,
     songUploadUiState: SongUploadUiState = SongUploadUiState.Idle,
     onSongClick: (Song) -> Unit,
     onSongShareClick: (Song, File, File) -> Unit = { song, songFile, albumArtFile -> },
@@ -177,10 +184,6 @@ fun SongContainer(
             modifier = modifier
                 .size(48.dp)
         )
-//        Image(
-//            painter = painterResource(R.drawable.ic_launcher_foreground),
-//            contentDescription = null
-//        )
         Column(
             modifier = modifier
         ) {
@@ -195,40 +198,68 @@ fun SongContainer(
         Spacer(modifier = Modifier.weight(1f))
         Text(text = formatTime(song.duration))
 
-        Button(
-            onClick = {
-                val albumId = song.albumId
-                val albumArtUri = if (albumId != null) {
-                    ContentUris.withAppendedId(
-                        Uri.parse("content://media/external/audio/albumart"),
-                        albumId
-                    )
-                } else Uri.parse("android.resource://${context.packageName}/R.drawable.faker1")
+        // if user is authenticated, then display button to share song
+        if (authState == AuthState.Authenticated) {
+            Button(
+                onClick = {
+                    val albumId = song.albumId
+                    val albumArtUri = if (albumId != null) {
+                        ContentUris.withAppendedId(
+                            Uri.parse("content://media/external/audio/albumart"),
+                            albumId
+                        )
+                    } else Uri.parse("android.resource://${context.packageName}/R.drawable.faker1")
 
-                val songFile = File(context.cacheDir, "${song.name}.mp3")
-                songFile.createNewFile()
-                context.contentResolver.openInputStream(song.songUri.toUri())?.use { inputStream ->
-                    songFile.outputStream().use { outputStream ->
-                        inputStream.copyTo(outputStream)
+                    val songFile = File(context.cacheDir, "${song.name}.mp3")
+                    songFile.createNewFile()
+                    context.contentResolver.openInputStream(song.songUri.toUri())
+                        ?.use { inputStream ->
+                            songFile.outputStream().use { outputStream ->
+                                inputStream.copyTo(outputStream)
+                            }
+                        }
+                        ?: throw IllegalArgumentException("Cannot open input stream from: ${song.songUri}")
+
+                    val albumArtMimeType = context.contentResolver.getType(albumArtUri)
+                    val albumArtExtensionType =
+                        MimeTypeMap.getSingleton().getExtensionFromMimeType(albumArtMimeType)
+                    val albumArtFile =
+                        File(context.cacheDir, "albumArt.${albumArtExtensionType ?: "bin"}")
+                    albumArtFile.createNewFile()
+                    context.contentResolver.openInputStream(albumArtUri)?.use { inputStream ->
+                        albumArtFile.outputStream().use { outputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
                     }
-                } ?: throw IllegalArgumentException("Cannot open input stream from: ${song.songUri}")
-
-                val albumArtMimeType = context.contentResolver.getType(albumArtUri)
-                val albumArtExtensionType = MimeTypeMap.getSingleton().getExtensionFromMimeType(albumArtMimeType)
-                val albumArtFile = File(context.cacheDir, "albumArt.${albumArtExtensionType ?: "bin"}")
-                albumArtFile.createNewFile()
-                context.contentResolver.openInputStream(albumArtUri)?.use { inputStream ->
-                    albumArtFile.outputStream().use { outputStream ->
-                        inputStream.copyTo(outputStream)
+                    onSongShareClick(song, songFile, albumArtFile)
+                }
+            ) {
+                when (songUploadUiState) {
+                    is SongUploadUiState.Error -> {
+                        Icon(
+                            Icons.Default.Error,
+                            contentDescription = null
+                        )
+                    }
+                    SongUploadUiState.Idle -> {
+                        Icon(
+                            Icons.Default.ArrowUpward,
+                            contentDescription = null
+                        )
+                    }
+                    SongUploadUiState.Loading -> {
+                        Text(text = "Loading...")
+                    }
+                    is SongUploadUiState.Success -> {
+                        Icon(
+                            Icons.Default.ThumbUp,
+                            contentDescription = null
+                        )
+                        Toast.makeText(context, songUploadUiState.song.songUri, Toast.LENGTH_LONG)
+                            .show()
                     }
                 }
-                onSongShareClick(song, songFile, albumArtFile)
             }
-        ) {
-            Icon(
-                Icons.Default.ArrowUpward,
-                contentDescription = null
-            )
         }
     }
 }

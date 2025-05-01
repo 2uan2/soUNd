@@ -28,7 +28,7 @@ class PlaylistEntryViewModel(
 ) : ViewModel() {
     private val _playlistName = MutableStateFlow("")
 
-    private var _songSelections: MutableStateFlow<List<SongSelectionEntry>> = MutableStateFlow(emptyList())
+    private val _songSelections: MutableStateFlow<List<SongSelectionEntry>> = MutableStateFlow(emptyList())
 
     init {
         viewModelScope.launch {
