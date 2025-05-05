@@ -1,5 +1,7 @@
-package com.example.sound.ui.loginPage.authService
+package com.example.sound.data.network
 
+import com.example.sound.data.network.repository.SongApiService
+import com.example.sound.ui.loginPage.authService.AuthApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -13,7 +15,11 @@ object RetrofitInstance {
             .build()
     }
 
-    val api: AuthApiService by lazy {
+    val authApi: AuthApiService by lazy {
         retrofit.create(AuthApiService::class.java)
+    }
+
+    val songApi: SongApiService by lazy {
+        retrofit.create(SongApiService::class.java)
     }
 }
