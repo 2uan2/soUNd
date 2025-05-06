@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.data.database.model.Song
+import com.example.sound.data.database.model.toLocalSong
+import com.example.sound.data.network.RetrofitInstance
 import com.example.sound.data.repository.BaseSongDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -54,19 +56,17 @@ class HomeViewModel(
         _currentSource.value = type
     }
 
-    private suspend fun fetchRemoteSongs(): List<Song> {
-        // Simulate a network fetch — replace this with actual API logic
-        return emptyList()
-    }
-
 
     fun loadRemoteSongs() {
         viewModelScope.launch {
-            // TODO: Replace with actual fetching logic
-            val fetchedSongs = fetchRemoteSongs() // Your own suspend function or API call
-            _remoteSongs.value = fetchedSongs
+            val result = songDataSource.getRemoteSongs()
+            result.fold(
+                onSuccess = { _remoteSongs.value = it },
+                onFailure = { Log.e(TAG, "Failed to load remote songs: ${it.message}") }
+            )
         }
     }
+
 
     val uiState: StateFlow<HomeUiState> =
         combine(songs, _uploadStates) { songList, uploadStates ->

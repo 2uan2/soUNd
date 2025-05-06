@@ -4,6 +4,7 @@ import android.util.Log
 import coil.network.HttpException
 import com.example.sound.data.database.dao.SongDao
 import com.example.sound.data.database.model.Song
+import com.example.sound.data.database.model.toLocalSong
 import com.example.sound.data.network.RetrofitInstance
 import com.example.sound.data.network.model.SongUploadResponse
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +41,8 @@ interface BaseSongDataSource {
         duration: Long,
         image: File,
     ): Result<SongUploadResponse>
+
+    suspend fun getRemoteSongs(): Result<List<Song>>
 }
 
 class LocalSongDataSource(
@@ -62,6 +65,24 @@ class LocalSongDataSource(
     override suspend fun deleteSong(song: Song) = songDao.delete(song)
 
     override suspend fun updateSong(song: Song) = songDao.update(song)
+
+    override suspend fun getRemoteSongs(): Result<List<Song>> {
+        val token = tokenManager.getToken() ?: return Result.failure(Exception("missing token"))
+
+        return try {
+            val response = RetrofitInstance.songApi.getRemoteSongs("Token $token")
+            if (response.isSuccessful) {
+                val dtoList = response.body() ?: emptyList()
+                val songs = dtoList.map { it.toLocalSong() }
+                Result.success(songs)
+            } else {
+                Result.failure(Exception("Request failed: ${response.code()} ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
     override suspend fun refreshSongs() {
         val songs = mediaStore.loadSongFromMediaStore()

@@ -1,9 +1,11 @@
 package com.example.sound.data.network.repository
 
+import com.example.sound.data.database.model.RemoteSongDto
 import com.example.sound.data.network.model.SongUploadResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -20,4 +22,9 @@ interface SongApiService {
         @Part("duration") duration: RequestBody,
         @Part image: MultipartBody.Part
     ): Response<SongUploadResponse>
+
+    @GET("song/")
+    suspend fun getRemoteSongs(
+        @Header("Authorization") authHeader: String
+    ): Response<List<RemoteSongDto>>
 }
