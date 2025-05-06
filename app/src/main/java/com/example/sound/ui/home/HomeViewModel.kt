@@ -20,21 +20,24 @@ import java.io.File
 
 const val TAG = "HomeViewModel"
 
+enum class SongSourceType { LOCAL, REMOTE }
+
 class HomeViewModel(
     private val songDataSource: BaseSongDataSource,
 ) : ViewModel() {
-//    private val _uiState: StateFlow<HomeUiState> =
-//        songDataSource.getAllSongs().map {
-//            HomeUiState(it.map { song -> SongContainerUiState(song = song) })
-//        }
-//            .stateIn(
-//                scope = viewModelScope,
-//                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-//                initialValue = HomeUiState()
-//            )
 
-    private val _songs: MutableStateFlow<List<Song>> = MutableStateFlow(emptyList())
-    val songs: StateFlow<List<Song>> = _songs
+    private val _localSongs = MutableStateFlow<List<Song>>(emptyList())
+    private val _remoteSongs = MutableStateFlow<List<Song>?>(null) // initially null
+
+    private val _currentSource = MutableStateFlow(SongSourceType.LOCAL)
+    val currentSource: StateFlow<SongSourceType> = _currentSource
+
+    val songs: StateFlow<List<Song>> = combine(_localSongs, _remoteSongs, _currentSource) { local, remote, source ->
+        when (source) {
+            SongSourceType.LOCAL -> local
+            SongSourceType.REMOTE -> remote ?: emptyList()
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     private val _uploadStates: MutableStateFlow<Map<Long, SongUploadUiState>> = MutableStateFlow(emptyMap())
     val uploadState: StateFlow<Map<Long, SongUploadUiState>> = _uploadStates
@@ -42,27 +45,44 @@ class HomeViewModel(
     init {
         viewModelScope.launch {
             songDataSource.getAllSongs().collect { songs ->
-                _songs.value = songs
-//                _uploadStates.value = List(songs.size) { SongUploadUiState.Idle }
+                _localSongs.value = songs
             }
         }
     }
 
-     val uiState: StateFlow<HomeUiState> =
-        combine(_songs, _uploadStates) { songs, uploadStates ->
-            val container = songs.map { song ->
+    fun switchSource(type: SongSourceType) {
+        _currentSource.value = type
+    }
+
+    private suspend fun fetchRemoteSongs(): List<Song> {
+        // Simulate a network fetch — replace this with actual API logic
+        return emptyList()
+    }
+
+
+    fun loadRemoteSongs() {
+        viewModelScope.launch {
+            // TODO: Replace with actual fetching logic
+            val fetchedSongs = fetchRemoteSongs() // Your own suspend function or API call
+            _remoteSongs.value = fetchedSongs
+        }
+    }
+
+    val uiState: StateFlow<HomeUiState> =
+        combine(songs, _uploadStates) { songList, uploadStates ->
+            val container = songList.map { song ->
                 SongContainerUiState(
                     song = song,
                     songUploadState = uploadStates.getOrDefault(song.songId, SongUploadUiState.Idle)
                 )
             }
             HomeUiState(container)
-        }
-        .stateIn(
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = HomeUiState()
         )
+
 
 //    init {
 //        refreshSongs()
