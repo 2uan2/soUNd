@@ -124,11 +124,37 @@ fun HomeBody(
     songList: List<Song>,
     modifier: Modifier,
 ) {
+    val currentSource by viewModel.currentSource.collectAsState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        // 🔘 Toggle between Local and Remote
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = {
+                    viewModel.switchSource(SongSourceType.LOCAL)
+                },
+                enabled = currentSource != SongSourceType.LOCAL
+            ) {
+                Text("Local Songs")
+            }
+
+            Button(
+                onClick = {
+                    viewModel.switchSource(SongSourceType.REMOTE)
+                    viewModel.loadRemoteSongs() // load remote songs if needed
+                },
+                enabled = currentSource != SongSourceType.REMOTE
+            ) {
+                Text("Remote Songs")
+            }
+        }
+
+        Spacer(modifier = Modifier.size(8.dp))
+
         Button(
             onClick = viewModel::refreshSongs
         ) {
