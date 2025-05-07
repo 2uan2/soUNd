@@ -54,6 +54,7 @@ import com.example.sound.musicService.rememberMediaController
 import com.example.sound.ui.AppViewModelProvider
 import com.example.sound.ui.player.PlayerViewModel.RepeatMode
 import kotlinx.coroutines.delay
+import androidx.core.net.toUri
 
 
 @Composable
@@ -137,17 +138,24 @@ fun PlayerScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            val albumArtUri = if (albumId != null) {
-                ContentUris.withAppendedId(
-                    Uri.parse("content://media/external/audio/albumart"),
-                    albumId
-                )
-            } else null
+            val albumArtUri = currentSong?.albumId?.let {
+                ContentUris.withAppendedId("content://media/external/audio/albumart".toUri(), it)
+            }
+
+            val coverImageUri = currentSong?.coverImage?.toUri()
+
+            val imageModel = when {
+                albumArtUri != null -> albumArtUri
+                coverImageUri != null -> coverImageUri
+                else -> R.drawable.album_art
+            }
+
             val imagePainter = rememberAsyncImagePainter(
-                model = albumArtUri ?: R.drawable.album_art,
+                model = imageModel,
                 placeholder = painterResource(id = R.drawable.album_art),
                 error = painterResource(id = R.drawable.album_art)
             )
+
 
             Image(
                 painter = imagePainter,
