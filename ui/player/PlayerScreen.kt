@@ -52,9 +52,10 @@ import com.example.sound.musicService.rememberMediaController
 import com.example.sound.ui.AppViewModelProvider
 import com.example.sound.ui.player.PlayerViewModel.RepeatMode
 import kotlinx.coroutines.delay
+import androidx.compose.ui.graphics.Brush
+
 
 const val TAG = "PlayerScreen"
-
 @Composable
 fun PlayerScreen(
     playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -79,6 +80,7 @@ fun PlayerScreen(
             playerViewModel.setMediaController(it)
         }
     }
+
     // Theo dõi bài hát hiện tại và khởi động phát
     LaunchedEffect(currentSong, controller) {
         currentSong?.let { song ->
@@ -106,7 +108,6 @@ fun PlayerScreen(
                                 controller.seekTo(0)
                                 controller.play()
                             }
-
                             else -> playerViewModel.playNext()
                         }
                     }
@@ -115,7 +116,6 @@ fun PlayerScreen(
             delay(500)
         }
     }
-
 
     fun togglePlayPause() {
         if (!isPrepared) return
@@ -126,7 +126,11 @@ fun PlayerScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFF4e4376), Color(0xFF2b5876))
+                )
+            )
     ) {
         Column(
             modifier = Modifier
@@ -145,8 +149,8 @@ fun PlayerScreen(
                 painter = imagePainter,
                 contentDescription = "Album Art",
                 modifier = Modifier
-                    .size(300.dp)
-                    .clip(MaterialTheme.shapes.medium),
+                    .size(280.dp)
+                    .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
 
@@ -154,7 +158,7 @@ fun PlayerScreen(
                 Text(
                     currentSong?.name ?: "No Title",
                     color = Color.White,
-                    fontSize = 24.sp,
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(currentSong?.artist ?: "Artist Name", color = Color.Gray, fontSize = 18.sp)
@@ -176,8 +180,8 @@ fun PlayerScreen(
                     },
                     valueRange = 0f..1f,
                     colors = SliderDefaults.colors(
-                        thumbColor = Color.Green,
-                        activeTrackColor = Color.Green,
+                        thumbColor = Color(0xFF4CAF50),
+                        activeTrackColor = Color(0xFF4CAF50),
                         inactiveTrackColor = Color.DarkGray
                     )
                 )
@@ -200,7 +204,7 @@ fun PlayerScreen(
                     Icon(
                         Icons.Default.Shuffle,
                         contentDescription = "Shuffle",
-                        tint = if (isShuffling) Color.Green else Color.Gray
+                        tint = if (isShuffling) Color(0xFF4CAF50) else Color.Gray
                     )
                 }
                 IconButton(onClick = { playerViewModel.playPrevious() }) {
@@ -208,20 +212,20 @@ fun PlayerScreen(
                         Icons.Default.SkipPrevious,
                         contentDescription = "Previous",
                         tint = Color.White,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(50.dp)
                     )
                 }
                 IconButton(
                     onClick = { togglePlayPause() },
                     modifier = Modifier
-                        .size(70.dp)
-                        .background(Color.Green, CircleShape)
+                        .size(80.dp)
+                        .background(Color(0xFF4CAF50), CircleShape)
                 ) {
                     Icon(
                         if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                         contentDescription = if (isPlaying) "Pause" else "Play",
                         tint = Color.White,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(50.dp)
                     )
                 }
                 IconButton(onClick = { playerViewModel.playNext() }) {
@@ -229,7 +233,7 @@ fun PlayerScreen(
                         Icons.Default.SkipNext,
                         contentDescription = "Next",
                         tint = Color.White,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(50.dp)
                     )
                 }
                 IconButton(onClick = { playerViewModel.toggleRepeat() }) {
@@ -237,8 +241,8 @@ fun PlayerScreen(
                         Icons.Default.Repeat,
                         contentDescription = "Repeat",
                         tint = when (repeatMode) {
-                            RepeatMode.REPEAT_ALL -> Color.Green
-                            RepeatMode.REPEAT_ONE -> Color.Yellow
+                            RepeatMode.REPEAT_ALL -> Color(0xFF4CAF50)
+                            RepeatMode.REPEAT_ONE -> Color(0xFFFFEB3B)
                             else -> Color.Gray
                         }
                     )

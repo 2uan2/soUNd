@@ -1,5 +1,6 @@
 package com.example.sound.ui
 
+import AlbumListScreen
 import android.net.Uri
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -16,7 +17,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.sound.ui.album.AlbumDetailScreen
-import com.example.sound.ui.album.AlbumListScreen
 import com.example.sound.ui.home.HomeScreen
 import com.example.sound.ui.player.PlayerScreen
 import com.example.sound.ui.player.PlayerViewModel
