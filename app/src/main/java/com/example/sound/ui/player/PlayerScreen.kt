@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -103,7 +104,7 @@ fun PlayerScreen(
                     sliderPosition = if (duration > 0) position.toFloat() / duration else 0f
 
                     // 👇 Check kết thúc bài
-                    if (position >= duration && duration > 0) {
+                    if (duration in 1..position) {
                         when (playerViewModel.repeatMode) {
                             RepeatMode.REPEAT_ONE -> {
                                 controller.seekTo(0)
@@ -129,7 +130,11 @@ fun PlayerScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFF4e4376), Color(0xFF2b5876))
+                )
+            )
     ) {
         Column(
             modifier = Modifier
