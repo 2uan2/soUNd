@@ -1,38 +1,34 @@
 package com.example.sound.ui.playlist
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.ui.AppViewModelProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.example.sound.ui.home.SongContainer
 
 //const val TAG = "PlaylistEntryScreen"
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistEntryScreen(
     onCreateButtonClicked: () -> Unit,
     viewModel: PlaylistEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
     var playlistName by remember { mutableStateOf(uiState.playlistName) }
     var songSelections by remember { mutableStateOf(uiState.songSelections) }
     val isNameEmpty = playlistName.isBlank()
@@ -42,58 +38,177 @@ fun PlaylistEntryScreen(
         songSelections = uiState.songSelections
     }
 
-    Column {
-        Button(
-            onClick = {
-                if (playlistName.isNotBlank()) {
-                    viewModel.setPlaylistName(playlistName)
-                    viewModel.setSongSelection(songSelections)
-                    viewModel.createPlaylist()
-                    onCreateButtonClicked()
-                } else {
-                    showError = true
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Create New Playlist", style = MaterialTheme.typography.titleLarge) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                navigationIcon = {
+                    IconButton(onClick = { /* TODO: Add back navigation */ }) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
-            },
-            enabled = !isNameEmpty
-        ) {
-            Text(text = "Create playlist")
-        }
-
-        TextField(
-            value = playlistName,
-            onValueChange = {
-                playlistName = it
-                showError = false
-            },
-            label = { Text("Playlist Name") },
-            isError = showError
-        )
-
-        if (showError) {
-            Text(
-                text = "Playlist name cannot be empty",
-                color = androidx.compose.ui.graphics.Color.Red
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    if (playlistName.isNotBlank()) {
+                        viewModel.setPlaylistName(playlistName)
+                        viewModel.setSongSelection(songSelections)
+                        viewModel.createPlaylist()
+                        onCreateButtonClicked()
+                    } else {
+                        showError = true
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(Icons.Default.Check, contentDescription = "Create Playlist")
+            }
         }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+        ) {
+            // Playlist Name Input
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Playlist Name",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = playlistName,
+                        onValueChange = {
+                            playlistName = it
+                            showError = false
+                        },
+                        placeholder = { Text("Enter playlist name") },
+                        isError = showError,
+                        supportingText = {
+                            if (showError) {
+                                Text(
+                                    text = "Playlist name cannot be empty",
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        ),
+                        singleLine = true
+                    )
+                }
+            }
 
-        LazyColumn {
-            Log.i(TAG, songSelections.toString())
-            items(songSelections) { songSelection ->
-                SongSelectionContainer(
-                    songSelection = songSelection,
-                    onSelectionChanged = { changedSongSelection ->
-                        songSelections = songSelections.map { songSelection ->
-                            if (changedSongSelection.song.songId == songSelection.song.songId) {
-                                songSelection.copy(selected = !songSelection.selected)
-                            } else {
-                                songSelection
+            // Song Selection Section
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Select Songs",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "${songSelections.count { it.selected }} selected",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    if (songSelections.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.MusicNote,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "No songs available",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(songSelections) { songSelection ->
+                                SongSelectionContainer(
+                                    songSelection = songSelection,
+                                    onSelectionChanged = { changedSongSelection ->
+                                        songSelections = songSelections.map { songSelection ->
+                                            if (changedSongSelection.song.songId == songSelection.song.songId) {
+                                                songSelection.copy(selected = !songSelection.selected)
+                                            } else {
+                                                songSelection
+                                            }
+                                        }
+                                    }
+                                )
                             }
                         }
                     }
-                )
+                }
             }
         }
-
     }
 }
 
@@ -102,21 +217,37 @@ fun SongSelectionContainer(
     onSelectionChanged: (SongSelectionEntry) -> Unit,
     songSelection: SongSelectionEntry
 ) {
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp), // Add padding between each item
-        horizontalArrangement = Arrangement.Start
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (songSelection.selected) 
+                MaterialTheme.colorScheme.primaryContainer 
+            else 
+                MaterialTheme.colorScheme.surface
+        )
     ) {
-        Checkbox(
-            checked = songSelection.selected,
-            onCheckedChange = { onSelectionChanged(songSelection) },
-            modifier = Modifier.padding(end = 16.dp)
-        )
-        // TODO change from using SongContainer to some other custom composable for this screen
-        SongContainer(
-            song = songSelection.song,
-            onSongClick = { onSelectionChanged(songSelection) },
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = songSelection.selected,
+                onCheckedChange = { onSelectionChanged(songSelection) },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = MaterialTheme.colorScheme.primary,
+                    uncheckedColor = MaterialTheme.colorScheme.outline
+                )
+            )
+            SongContainer(
+                song = songSelection.song,
+                onSongClick = { onSelectionChanged(songSelection) },
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
