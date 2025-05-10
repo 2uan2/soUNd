@@ -65,15 +65,28 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
     }
 
     fun playSong(song: Song) {
-        _currentSong.value = song
-        mediaController?.let { controller ->
-            val mediaItem = MediaItem.Builder()
-                .setUri(song.songUri.toUri())
-                .setMediaId(song.songUri)
-                .build()
-            controller.setMediaItem(mediaItem)
-            controller.prepare()
-            controller.play()
+        viewModelScope.launch {
+            val currentSongs = _currentPlaylist.value?.songs
+            val isSongInCurrentPlaylist = currentSongs?.any { it.songId == song.songId } == true
+
+            if (!isSongInCurrentPlaylist) {
+                // Treat this as a custom single-song playlist
+                _currentPlaylist.value = PlaylistWithSongs(
+                    playlist = Playlist(playlistId = -1, name = "Single Song"),
+                    songs = listOf(song)
+                )
+            }
+
+            _currentSong.value = song
+            mediaController?.let { controller ->
+                val mediaItem = MediaItem.Builder()
+                    .setUri(song.songUri.toUri())
+                    .setMediaId(song.songUri)
+                    .build()
+                controller.setMediaItem(mediaItem)
+                controller.prepare()
+                controller.play()
+            }
         }
     }
 
