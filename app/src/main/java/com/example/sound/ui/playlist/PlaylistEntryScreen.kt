@@ -1,8 +1,11 @@
 package com.example.sound.ui.playlist
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -18,6 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.example.sound.ui.home.SongContainer
 
 //const val TAG = "PlaylistEntryScreen"
@@ -97,10 +102,16 @@ fun SongSelectionContainer(
     onSelectionChanged: (SongSelectionEntry) -> Unit,
     songSelection: SongSelectionEntry
 ) {
-    Row {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp), // Add padding between each item
+        horizontalArrangement = Arrangement.Start
+    ) {
         Checkbox(
             checked = songSelection.selected,
-            onCheckedChange = { onSelectionChanged(songSelection)  }
+            onCheckedChange = { onSelectionChanged(songSelection) },
+            modifier = Modifier.padding(end = 16.dp)
         )
         // TODO change from using SongContainer to some other custom composable for this screen
         SongContainer(

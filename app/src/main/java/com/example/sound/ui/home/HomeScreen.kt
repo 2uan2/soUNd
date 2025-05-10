@@ -1,5 +1,6 @@
 package com.example.sound.ui.home
 
+import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.net.Uri
 import android.webkit.MimeTypeMap
@@ -188,7 +189,7 @@ fun SongContainer(
     songUploadUiState: SongUploadUiState = SongUploadUiState.Idle,
     onSongClick: (Song) -> Unit,
     onSongShareClick: (Song, File, File) -> Unit = { song, songFile, albumArtFile -> },
-    modifier: Modifier = Modifier
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 
@@ -200,7 +201,7 @@ fun SongContainer(
         val albumId = song.albumId
         val albumArtUri = if (albumId != null) {
             ContentUris.withAppendedId(
-                Uri.parse("content://media/external/audio/albumart"),
+                "content://media/external/audio/albumart".toUri(),
                 albumId
             )
         } else null
@@ -231,10 +232,10 @@ fun SongContainer(
                     val albumId = song.albumId
                     val albumArtUri = if (albumId != null) {
                         ContentUris.withAppendedId(
-                            Uri.parse("content://media/external/audio/albumart"),
+                            "content://media/external/audio/albumart".toUri(),
                             albumId
                         )
-                    } else Uri.parse("android.resource://${context.packageName}/R.drawable.faker1")
+                    } else "android.resource://${context.packageName}/R.drawable.faker1".toUri()
 
                     val songFile = File(context.cacheDir, "${song.name}.mp3")
                     songFile.createNewFile()
@@ -267,15 +268,18 @@ fun SongContainer(
                             contentDescription = null
                         )
                     }
+
                     SongUploadUiState.Idle -> {
                         Icon(
                             Icons.Default.ArrowUpward,
                             contentDescription = null
                         )
                     }
+
                     SongUploadUiState.Loading -> {
                         Text(text = "Loading...")
                     }
+
                     is SongUploadUiState.Success -> {
                         Icon(
                             Icons.Default.ThumbUp,
