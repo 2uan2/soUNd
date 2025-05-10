@@ -34,14 +34,16 @@ class HomeViewModel(
     private val _currentSource = MutableStateFlow(SongSourceType.LOCAL)
     val currentSource: StateFlow<SongSourceType> = _currentSource
 
-    val songs: StateFlow<List<Song>> = combine(_localSongs, _remoteSongs, _currentSource) { local, remote, source ->
-        when (source) {
-            SongSourceType.LOCAL -> local
-            SongSourceType.REMOTE -> remote ?: emptyList()
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    val songs: StateFlow<List<Song>> =
+        combine(_localSongs, _remoteSongs, _currentSource) { local, remote, source ->
+            when (source) {
+                SongSourceType.LOCAL -> local
+                SongSourceType.REMOTE -> remote ?: emptyList()
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    private val _uploadStates: MutableStateFlow<Map<Long, SongUploadUiState>> = MutableStateFlow(emptyMap())
+    private val _uploadStates: MutableStateFlow<Map<Long, SongUploadUiState>> =
+        MutableStateFlow(emptyMap())
     val uploadState: StateFlow<Map<Long, SongUploadUiState>> = _uploadStates
 
     init {
@@ -113,12 +115,18 @@ class HomeViewModel(
             _uploadStates.update { currentMap ->
                 val newMap = currentMap.toMutableMap()
                 result.fold(
-                    onSuccess = { newMap[song.songId] = SongUploadUiState.Success(Song(
-                        songUri = it.songUrl,
-                        name = it.name,
-                        duration = it.duration,
-                    ))},
-                    onFailure = { newMap[song.songId] = SongUploadUiState.Error(it.message ?: "unknown error")}
+                    onSuccess = {
+                        newMap[song.songId] = SongUploadUiState.Success(
+                            Song(
+                                songUri = it.songUrl,
+                                name = it.name,
+                                duration = it.duration,
+                            )
+                        )
+                    },
+                    onFailure = {
+                        newMap[song.songId] = SongUploadUiState.Error(it.message ?: "unknown error")
+                    }
                 )
                 newMap
             }
