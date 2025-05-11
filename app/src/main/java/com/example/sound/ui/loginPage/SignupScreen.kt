@@ -3,6 +3,7 @@ package com.example.sound.ui.loginPage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,13 +48,16 @@ import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
 @Composable
 fun SignupScreen(
     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory()),
+//    authUiState: AuthUiState = AuthUiState.Idle,
+    onRegisterButtonClicked: (String, String, String) -> Unit = { username, email, password -> },
+    onLoginClicked: () -> Unit = {},
     onSignupSuccess: (String) -> Unit = {}
 ) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    val authState = authViewModel.authUiState
+    val authUiState = authViewModel.authUiState
 
     Column(
         Modifier
@@ -165,7 +169,10 @@ fun SignupScreen(
 
         // Signup button
         Button(
-            onClick = { authViewModel.register(username, email, password) },
+            onClick = {
+                onRegisterButtonClicked(username, email, password)
+                authViewModel.register(username, email, password)
+            },
             Modifier
                 .fillMaxWidth()
                 .height(66.dp)
@@ -181,13 +188,13 @@ fun SignupScreen(
             )
         }
 
-        when (authState) {
+        when (authUiState) {
             is AuthUiState.Loading -> Text("Registering...", color = Color.Gray)
-            is AuthUiState.Error -> Text("Error: ${authState.message}", color = Color.Red)
+            is AuthUiState.Error -> Text("Error: ${authUiState.message}", color = Color.Red)
             is AuthUiState.Success -> {
                 Text("Register Success!", color = Color.Green)
                 LaunchedEffect(Unit) {
-                    onSignupSuccess(authState.token)
+                    onSignupSuccess(authUiState.token)
                 }
             }
 
@@ -196,9 +203,67 @@ fun SignupScreen(
 
         Text(
             text = "Already have an account? Log in here",
-            Modifier.padding(top = 16.dp),
+            Modifier.padding(top = 16.dp)
+                .clickable(
+                    onClick = onLoginClicked
+                ),
             fontSize = 14.sp,
             color = Color("#7d32a8".toColorInt())
         )
     }
 }
+
+//@Composable
+//fun RegisterScreen(
+//    authUiState: AuthUiState,
+//    onRegisterButtonClicked: (String, String, String) -> Unit,
+//    onSignupSuccess: (String, String) -> Unit,
+//    onLoginClicked: () -> Unit = {},
+//) {
+//    var username by remember { mutableStateOf("") }
+//    var email by remember { mutableStateOf("") }
+//    var password by remember { mutableStateOf("") }
+//    var passwordVisible by remember { mutableStateOf(false) }
+////    val authUiState = authViewModel.authUiState
+//
+//    Column(
+//        Modifier
+//            .fillMaxWidth()
+//            .fillMaxHeight()
+//            .background(color = Color("#ffffff".toColorInt())),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//    ) {
+//        // Signup button
+//        Button(
+//            onClick = {
+//                onRegisterButtonClicked(username, email, password)
+////                authViewModel.register(username, email, password)
+//            },
+//            Modifier
+//                .fillMaxWidth()
+//                .height(66.dp)
+//                .padding(horizontal = 64.dp, vertical = 8.dp),
+//            colors = ButtonDefaults.buttonColors(containerColor = Color("#7d32a8".toColorInt())),
+//            shape = RoundedCornerShape(50)
+//        ) {
+//            Text(
+//                text = "Sign Up",
+//                color = Color.White,
+//                fontSize = 18.sp,
+//                fontWeight = FontWeight.Bold
+//            )
+//        }
+//
+//        when (authUiState) {
+//            is AuthUiState.Loading -> Text("Registering...", color = Color.Gray)
+//            is AuthUiState.Error -> Text("Error: ${authUiState.message}", color = Color.Red)
+//            is AuthUiState.Success -> {
+//                Text("Register Success!", color = Color.Green)
+//                LaunchedEffect(Unit) {
+//                    onSignupSuccess(authUiState.token, authUiState.userId)
+//                }
+//            }
+//            else -> {}
+//        }
+//    }
+//}
