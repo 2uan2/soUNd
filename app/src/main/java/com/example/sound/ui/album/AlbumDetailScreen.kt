@@ -25,6 +25,7 @@ import com.example.sound.ui.player.PlayerViewModel
 @Composable
 fun AlbumDetailScreen(
     onSongClick: (Song) -> Unit,
+    onBackClick: () -> Unit,
     viewModel: AlbumDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
     playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -40,7 +41,7 @@ fun AlbumDetailScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO: Add back navigation */ }) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",

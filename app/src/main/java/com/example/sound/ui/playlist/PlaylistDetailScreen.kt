@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
@@ -25,6 +27,7 @@ import com.example.sound.ui.player.PlayerViewModel
 @Composable
 fun PlaylistDetailScreen(
     onSongClick: (Song) -> Unit,
+    onBackClick: () -> Unit,
     viewModel: PlaylistDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
     playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onPlaylistDeleted: () -> Unit
@@ -41,9 +44,9 @@ fun PlaylistDetailScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO: Add back navigation */ }) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -75,7 +78,7 @@ fun PlaylistDetailScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        Icons.Default.PlaylistPlay,
+                        Icons.AutoMirrored.Filled.PlaylistPlay,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
