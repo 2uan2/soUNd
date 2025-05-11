@@ -50,7 +50,7 @@ fun SignupScreen(
     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory()),
 //    authUiState: AuthUiState = AuthUiState.Idle,
     onRegisterButtonClicked: (String, String, String) -> Unit = { username, email, password -> },
-    onLoginClicked: () -> Unit = {},
+    onLoginRouteClicked: () -> Unit = {},
     onSignupSuccess: (String) -> Unit = {}
 ) {
     var username by remember { mutableStateOf("") }
@@ -205,7 +205,7 @@ fun SignupScreen(
             text = "Already have an account? Log in here",
             Modifier.padding(top = 16.dp)
                 .clickable(
-                    onClick = onLoginClicked
+                    onClick = onLoginRouteClicked
                 ),
             fontSize = 14.sp,
             color = Color("#7d32a8".toColorInt())
