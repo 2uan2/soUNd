@@ -42,6 +42,7 @@ import com.example.sound.ui.shared.MyBottomBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import com.example.sound.ui.shared.WaitingScreen
 
 
 sealed class Screen(val route: String) {
@@ -87,12 +88,7 @@ fun SoundApp(
     val mediaControllerReady by SoundApplication.mediaControllerReady.observeAsState(false)
 
     if (!mediaControllerReady) {
-        Scaffold {
-            Column(Modifier.padding(16.dp)) {
-                Text("Đang khởi tạo Media Controller...")
-                androidx.compose.material3.CircularProgressIndicator()
-            }
-        }
+        WaitingScreen()
         return
     }
 

@@ -12,6 +12,7 @@ import com.example.sound.ui.loginPage.LoginScreen
 import com.example.sound.ui.loginPage.SignupScreen
 import com.example.sound.ui.theme.SoUNdTheme
 import com.example.sound.ui.SoundApp
+import com.example.sound.ui.shared.WaitingScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
                 SoundApp()
 //                LoginScreen()
 //                SignupScreen()
+//                WaitingScreen()
             }
 
         }
