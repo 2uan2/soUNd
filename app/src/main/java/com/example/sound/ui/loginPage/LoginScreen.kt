@@ -3,6 +3,7 @@ package com.example.sound.ui.loginPage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -43,15 +44,18 @@ import com.example.sound.ui.loginPage.authService.AuthUiState
 import com.example.sound.ui.loginPage.authService.AuthViewModel
 import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory()),
-    onLoginSuccess: (String) -> Unit = {}  // callback nếu muốn chuyển màn sau khi login thành công
+//    authUiState: AuthUiState,
+    onLoginButtonClicked: (String, String) -> Unit,
+    onLoginSuccess: (String) -> Unit,
+    onRegisterClicked: () -> Unit = {},
 ) {
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
-    val authState = authViewModel.authUiState
+    val authUiState = authViewModel.authUiState
 
     Column(
         Modifier
@@ -79,10 +83,7 @@ fun LoginScreen(
             color = Color("#7d32a8".toColorInt())
         )
 
-//        var user by remember { mutableStateOf("Username") }
-//        var pass by remember { mutableStateOf("Password") }
         var passwordVisible by remember { mutableStateOf(false) }
-
 
         TextField(
             value = user, { text -> user = text },
@@ -133,8 +134,18 @@ fun LoginScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
+        Text(
+            text = "Register",
+            color = Color.Blue,
+            modifier = Modifier
+                .clickable(
+                    onClick = onRegisterClicked
+                ),
+        )
+
         Button(
             onClick = {
+                onLoginButtonClicked(user, pass)
                 authViewModel.login(user, pass)
             },
             modifier = Modifier
@@ -147,13 +158,13 @@ fun LoginScreen(
             Text("Login", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
 
-        when (authState) {
+        when (authUiState) {
             is AuthUiState.Loading -> Text("Loading...", color = Color.Gray)
-            is AuthUiState.Error -> Text("Error: ${authState.message}", color = Color.Red)
+            is AuthUiState.Error -> Text("Error: ${authUiState.message}", color = Color.Red)
             is AuthUiState.Success -> {
                 Text("Login successful!", color = Color.Green)
                 LaunchedEffect(Unit) {
-                    onLoginSuccess(authState.token)
+                    onLoginSuccess(authUiState.token)
                 }
             }
             else -> {}
@@ -179,3 +190,57 @@ fun LoginScreen(
         }
     }
 }
+
+//@Composable
+//fun LoginScreen(
+//    authUiState: AuthUiState,
+//    onLoginButtonClicked: (String, String) -> Unit,
+//    onLoginSuccess: (String, String) -> Unit,
+//    onRegisterClicked: () -> Unit = {},
+//) {
+//    var username by remember { mutableStateOf("") }
+//    var pass by remember { mutableStateOf("") }
+//
+//    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        modifier = Modifier
+//    ) {
+//        Text(
+//            text = "Register",
+//            color = Color.Blue,
+//            modifier = Modifier
+//                .clickable(
+//                    onClick = onRegisterClicked
+//                ),
+//        )
+//
+//        when (authUiState) {
+//            is AuthUiState.Loading -> Text("Logging in...", color = Color.Gray)
+//            is AuthUiState.Error -> Text("Error: ${authUiState.message}", color = Color.Red)
+//            is AuthUiState.Success -> {
+//                Text("Log in Success!", color = Color.Green)
+//                LaunchedEffect(Unit) {
+//                    onLoginSuccess(authUiState.token)//, authUiState.userId)
+//                }
+//            }
+//
+//            else -> {}
+//        }
+//
+//        Button(
+//            onClick = {
+////                authViewModel.login(username, pass)
+//            },
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(66.dp)
+//                .padding(start = 64.dp, end = 64.dp, top = 8.dp, bottom = 8.dp),
+//            colors = ButtonDefaults.buttonColors(containerColor = Color("#7d32a8".toColorInt())),
+//            shape = RoundedCornerShape(50)
+//        ) {
+//            Text("Login", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+//        }
+//    }
+//
+//
+//}
