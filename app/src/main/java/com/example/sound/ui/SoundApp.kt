@@ -74,6 +74,7 @@ sealed class Screen(val route: String) {
 
 
 const val TAG = "SoundApp"
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SoundApp(
@@ -101,15 +102,19 @@ fun SoundApp(
     val showMiniPlayer = currentRoute != Screen.Player.route
 
     Scaffold(
-        bottomBar = { Column {
-            if (showMiniPlayer) {
-                MiniPlayer(
-                    playerViewModel = playerViewModel,
-                    onExpand = { navController.navigate(Screen.Player.route) }
-                )
+        bottomBar = {
+            if (currentRoute != Screen.Player.route) {
+                Column {
+                    if (showMiniPlayer) {
+                        MiniPlayer(
+                            playerViewModel = playerViewModel,
+                            onExpand = { navController.navigate(Screen.Player.route) }
+                        )
+                    }
+                    MyBottomBar(navController)
+                }
             }
-            MyBottomBar(navController)
-        } }
+        }
     ) { innerPadding ->
         NavHost(
             navController,
@@ -173,7 +178,7 @@ fun SoundApp(
                 PlaylistDetailScreen(
                     playerViewModel = playerViewModel,
                     onSongClick = { song ->
-                        navController.navigate(Screen.Player.route)
+//                        navController.navigate(Screen.Player.route)
                     },
                     onPlaylistDeleted = {
                         navController.navigate(Screen.PlaylistList.route) {
@@ -203,15 +208,16 @@ fun SoundApp(
                 AlbumDetailScreen(
                     playerViewModel = playerViewModel,
                     onSongClick = { song ->
-
-                        navController.navigate(Screen.Player.route)
+//                        navController.navigate(Screen.Player.route)
                     },
                     onBackClick = { navController.popBackStack() }
 
                 )
             }
             composable(route = Screen.Player.route) {
-                PlayerScreen(playerViewModel = playerViewModel)
+                PlayerScreen(
+                    playerViewModel = playerViewModel,
+                    onBackClick = { navController.popBackStack() })
             }
         }
     }

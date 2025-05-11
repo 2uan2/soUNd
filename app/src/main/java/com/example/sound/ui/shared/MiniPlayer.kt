@@ -30,6 +30,7 @@ import coil.compose.AsyncImage
 import com.example.sound.R
 import com.example.sound.ui.player.PlayerViewModel
 import com.example.sound.ui.player.formatTime
+import kotlinx.coroutines.delay
 
 @Composable
 fun MiniPlayer(
@@ -38,7 +39,23 @@ fun MiniPlayer(
 ) {
     val currentSong by playerViewModel.currentSong.collectAsState()
     val isPlaying by playerViewModel.isPlaying.collectAsState()
-    val context = LocalContext.current
+
+    // Progress tracking
+    var currentPosition by remember { mutableLongStateOf(0L) }
+    var duration by remember { mutableLongStateOf(0L) }
+    var progress by remember { mutableFloatStateOf(0f) }
+
+    // Update progress every 500ms
+    LaunchedEffect(isPlaying) {
+        while (isPlaying) {
+            currentPosition = playerViewModel.mediaControllerInstance?.currentPosition ?: 0L
+            duration = playerViewModel.mediaControllerInstance?.duration ?: 0L
+            progress = if (duration > 0) {
+                (currentPosition.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
+            } else 0f
+            delay(500)
+        }
+    }
 
     if (currentSong == null) return
 
@@ -52,7 +69,7 @@ fun MiniPlayer(
         Column {
             // Progress bar
             LinearProgressIndicator(
-                progress = { 0.5f }, // TODO: Implement actual progress
+                progress = { progress },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(2.dp),
@@ -103,14 +120,27 @@ fun MiniPlayer(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(
-                        text = currentSong?.artist ?: "Unknown Artist",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = currentSong?.artist ?: "Unknown Artist",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        // Time display
+                        Text(
+                            text = "${formatTime(currentPosition)} / ${formatTime(duration)}",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            )
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))

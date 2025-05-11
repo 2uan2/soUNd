@@ -15,18 +15,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -58,13 +65,20 @@ import kotlinx.coroutines.delay
 import androidx.core.net.toUri
 
 
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
-    playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory,),
+    onBackClick: () -> Unit,
 ) {
-    val context = LocalContext.current
     val currentSong by playerViewModel.currentSong.collectAsState()
-    val albumId = currentSong?.albumId
     val controller = playerViewModel.mediaControllerInstance
 
     val isPlaying by playerViewModel.isPlaying.collectAsState()
@@ -77,6 +91,19 @@ fun PlayerScreen(
     val isShuffling by remember { derivedStateOf { playerViewModel.isShuffling } }
     val repeatMode by remember { derivedStateOf { playerViewModel.repeatMode } }
 
+
+    LaunchedEffect(controller, isPlaying) {
+        while (true) {
+            if (!userSeeking && isPlaying) {
+                controller?.let {
+                    position = it.currentPosition
+                    duration = it.duration.coerceAtLeast(0L)
+                    sliderPosition = if (duration > 0) position.toFloat() / duration else 0f
+                }
+            }
+            delay(500)
+        }
+    }
     // Theo dõi bài hát hiện tại và khởi động phát
     LaunchedEffect(currentSong, controller) {
         currentSong?.let { song ->
@@ -85,32 +112,6 @@ fun PlayerScreen(
                     isPrepared = true
                 }
             }
-        }
-    }
-
-    // Theo dõi vị trí phát
-    LaunchedEffect(controller, isPlaying) {
-        while (true) {
-            if (!userSeeking && isPlaying) {
-                controller?.let {
-                    position = it.currentPosition
-                    duration = it.duration.coerceAtLeast(0L)
-                    sliderPosition = if (duration > 0) position.toFloat() / duration else 0f
-
-                    // 👇 Check kết thúc bài
-                    if (duration in 1..position) {
-                        when (playerViewModel.repeatMode) {
-                            RepeatMode.REPEAT_ONE -> {
-                                controller.seekTo(0)
-                                controller.play()
-                            }
-
-                            else -> playerViewModel.playNext()
-                        }
-                    }
-                }
-            }
-            delay(500)
         }
     }
 
@@ -127,20 +128,48 @@ fun PlayerScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                brush = Brush.verticalGradient(
+                Brush.verticalGradient(
                     colors = listOf(Color(0xFF4e4376), Color(0xFF2b5876))
                 )
             )
     ) {
+
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+        containerColor = Color.Transparent,
+        topBar = {
+            TopAppBar(
+                title = { Text("Now Playing", color = Color.White) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
+        },
+
+        ) {innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             val albumArtUri = currentSong?.albumId?.let {
-                ContentUris.withAppendedId("content://media/external/audio/albumart".toUri(), it)
+                ContentUris.withAppendedId(
+                    "content://media/external/audio/albumart".toUri(),
+                    it
+                )
             }
 
             val coverImageUri = currentSong?.coverImage?.toUri()
@@ -262,7 +291,11 @@ fun PlayerScreen(
                 }
             }
         }
-    }
+
+
+    }}
+
+
 }
 
 @SuppressLint("DefaultLocale")
