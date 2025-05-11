@@ -75,7 +75,8 @@ object AppViewModelProvider {
 
         initializer {
             PlayerViewModel(
-                SoundApplication.container.playlistDataSource
+                playlistDataSource = SoundApplication.container.playlistDataSource,
+                mediaController = SoundApplication.mediaController
             )
         }
     }

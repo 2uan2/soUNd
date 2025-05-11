@@ -1,22 +1,29 @@
 package com.example.sound.ui
 
+import android.annotation.SuppressLint
+import android.graphics.Color
 import android.net.Uri
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.sound.SoundApplication
 import com.example.sound.data.repository.TokenRepository
 import com.example.sound.ui.album.AlbumDetailScreen
 import com.example.sound.ui.album.AlbumListScreen
@@ -30,7 +37,12 @@ import com.example.sound.ui.player.PlayerViewModel
 import com.example.sound.ui.playlist.PlaylistDetailScreen
 import com.example.sound.ui.playlist.PlaylistEntryScreen
 import com.example.sound.ui.playlist.PlaylistListScreen
+import com.example.sound.ui.shared.MiniPlayer
 import com.example.sound.ui.shared.MyBottomBar
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -61,23 +73,47 @@ sealed class Screen(val route: String) {
 
 
 const val TAG = "SoundApp"
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SoundApp(
 
 ) {
     val navController: NavHostController = rememberNavController()
     val context = LocalContext.current
+    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory())
+    val authState = authViewModel.authState.collectAsState()
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
+    val mediaControllerReady by SoundApplication.mediaControllerReady.observeAsState(false)
+
+    if (!mediaControllerReady) {
+        Scaffold {
+            Column(Modifier.padding(16.dp)) {
+                Text("Đang khởi tạo Media Controller...")
+                androidx.compose.material3.CircularProgressIndicator()
+            }
+        }
+        return
+    }
+
+    // ✅ mediaController đã sẵn sàng, tạo ViewModel
     val playerViewModel: PlayerViewModel = viewModel(
         viewModelStoreOwner = context as ComponentActivity,
         factory = AppViewModelProvider.Factory
     )
-//    val tokenManager = remember { TokenRepository(context) }
-    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory())
-    val authState = authViewModel.authState.collectAsState()
+
+    val showMiniPlayer = currentRoute != Screen.Player.route
 
     Scaffold(
-        bottomBar = { MyBottomBar(navController) }
+        bottomBar = { Column {
+            if (showMiniPlayer) {
+                MiniPlayer(
+                    playerViewModel = playerViewModel,
+                    onExpand = { navController.navigate(Screen.Player.route) }
+                )
+            }
+            MyBottomBar(navController)
+        } }
     ) { innerPadding ->
         NavHost(
             navController,
