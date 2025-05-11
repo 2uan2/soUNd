@@ -147,7 +147,8 @@ fun SoundApp(
                         navController.navigate(Screen.PlaylistList.route) {
                             popUpTo(Screen.PlaylistList.route) { inclusive = true }
                         }
-                    }
+                    },
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
@@ -168,9 +169,13 @@ fun SoundApp(
                 )
             ) { backStackEntry ->
                 AlbumDetailScreen(
+                    playerViewModel = playerViewModel,
                     onSongClick = { song ->
+
                         navController.navigate(Screen.Player.route)
-                    }
+                    },
+                    onBackClick = { navController.popBackStack() }
+
                 )
             }
             composable(route = Screen.Player.route) {
