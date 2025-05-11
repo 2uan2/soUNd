@@ -40,11 +40,11 @@ fun MyBottomBar(navController: NavController) {
             icon = Icons.Default.Album,
             screen = Screen.AlbumList
         ),
-        BottomNavItem(
-            title = "Player",
-            icon = Icons.Default.MusicNote,
-            screen = Screen.Player
-        ),
+//        BottomNavItem(
+//            title = "Player",
+//            icon = Icons.Default.MusicNote,
+//            screen = Screen.Player
+//        ),
         BottomNavItem(
             title = "Playlist",
             icon = Icons.Default.LibraryMusic,
