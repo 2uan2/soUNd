@@ -62,9 +62,7 @@ import androidx.core.net.toUri
 fun PlayerScreen(
     playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val context = LocalContext.current
     val currentSong by playerViewModel.currentSong.collectAsState()
-    val albumId = currentSong?.albumId
     val controller = playerViewModel.mediaControllerInstance
 
     val isPlaying by playerViewModel.isPlaying.collectAsState()
@@ -77,6 +75,19 @@ fun PlayerScreen(
     val isShuffling by remember { derivedStateOf { playerViewModel.isShuffling } }
     val repeatMode by remember { derivedStateOf { playerViewModel.repeatMode } }
 
+
+    LaunchedEffect(controller, isPlaying) {
+        while (true) {
+            if (!userSeeking && isPlaying) {
+                controller?.let {
+                    position = it.currentPosition
+                    duration = it.duration.coerceAtLeast(0L)
+                    sliderPosition = if (duration > 0) position.toFloat() / duration else 0f
+                }
+            }
+            delay(500)
+        }
+    }
     // Theo dõi bài hát hiện tại và khởi động phát
     LaunchedEffect(currentSong, controller) {
         currentSong?.let { song ->
@@ -85,32 +96,6 @@ fun PlayerScreen(
                     isPrepared = true
                 }
             }
-        }
-    }
-
-    // Theo dõi vị trí phát
-    LaunchedEffect(controller, isPlaying) {
-        while (true) {
-            if (!userSeeking && isPlaying) {
-                controller?.let {
-                    position = it.currentPosition
-                    duration = it.duration.coerceAtLeast(0L)
-                    sliderPosition = if (duration > 0) position.toFloat() / duration else 0f
-
-                    // 👇 Check kết thúc bài
-                    if (duration in 1..position) {
-                        when (playerViewModel.repeatMode) {
-                            RepeatMode.REPEAT_ONE -> {
-                                controller.seekTo(0)
-                                controller.play()
-                            }
-
-                            else -> playerViewModel.playNext()
-                        }
-                    }
-                }
-            }
-            delay(500)
         }
     }
 

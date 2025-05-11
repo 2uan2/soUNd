@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
 import com.example.sound.data.database.model.Playlist
+import kotlinx.coroutines.delay
 
 class PlayerViewModel(
     private val playlistDataSource: BasePlaylistDataSource,
@@ -47,6 +48,32 @@ class PlayerViewModel(
 
     var repeatMode by mutableStateOf(RepeatMode.NONE)
         private set
+
+    init {
+        startPlaybackObserver()
+    }
+    private fun startPlaybackObserver() {
+        viewModelScope.launch {
+            while (true) {
+                if (_isPlaying.value) {
+                    val controller = mediaController
+                    val position = controller?.currentPosition ?: 0L
+                    val duration = controller?.duration ?: 0L
+
+                    if (duration in 1..position) {
+                        when (repeatMode) {
+                            RepeatMode.REPEAT_ONE -> {
+                                controller?.seekTo(0)
+                                controller?.play()
+                            }
+                            else -> playNext()
+                        }
+                    }
+                }
+                delay(500)
+            }
+        }
+    }
 
     fun toggleRepeat() {
         repeatMode = when (repeatMode) {
