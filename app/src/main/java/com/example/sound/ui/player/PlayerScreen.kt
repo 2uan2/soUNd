@@ -63,11 +63,11 @@ fun PlayerScreen(
     playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val context = LocalContext.current
-    val controller = rememberMediaController(context)
     val currentSong by playerViewModel.currentSong.collectAsState()
     val albumId = currentSong?.albumId
+    val controller = playerViewModel.mediaControllerInstance
 
-    var isPlaying by remember { mutableStateOf(false) }
+    val isPlaying by playerViewModel.isPlaying.collectAsState()
     var isPrepared by remember { mutableStateOf(false) }
     var duration by remember { mutableLongStateOf(0L) }
     var position by remember { mutableLongStateOf(0L) }
@@ -77,19 +77,13 @@ fun PlayerScreen(
     val isShuffling by remember { derivedStateOf { playerViewModel.isShuffling } }
     val repeatMode by remember { derivedStateOf { playerViewModel.repeatMode } }
 
-    // Gán controller cho ViewModel
-    LaunchedEffect(controller) {
-        controller?.let {
-            playerViewModel.setMediaController(it)
-        }
-    }
     // Theo dõi bài hát hiện tại và khởi động phát
     LaunchedEffect(currentSong, controller) {
         currentSong?.let { song ->
             if (controller?.currentMediaItem?.mediaId != song.songUri) {
-                playerViewModel.playSong(song)
-                isPrepared = true
-                isPlaying = true
+                playerViewModel.playSong(song) {
+                    isPrepared = true
+                }
             }
         }
     }
@@ -122,9 +116,11 @@ fun PlayerScreen(
 
 
     fun togglePlayPause() {
-        if (!isPrepared) return
-        if (isPlaying) controller?.pause() else controller?.play()
-        isPlaying = !isPlaying
+        if (isPlaying) {
+            playerViewModel.pause()
+        } else {
+            playerViewModel.resume()
+        }
     }
 
     Box(

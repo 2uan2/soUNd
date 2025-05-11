@@ -1,5 +1,6 @@
 package com.example.sound.ui.player
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -17,7 +18,10 @@ import kotlinx.coroutines.launch
 import androidx.core.net.toUri
 import com.example.sound.data.database.model.Playlist
 
-class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : ViewModel() {
+class PlayerViewModel(
+    private val playlistDataSource: BasePlaylistDataSource,
+    private val mediaController: MediaController?
+) : ViewModel() {
 
     private val _currentSong = MutableStateFlow<Song?>(null)
     val currentSong: StateFlow<Song?> = _currentSong.asStateFlow()
@@ -25,10 +29,15 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
     private val _currentPlaylist = MutableStateFlow<PlaylistWithSongs?>(null)
     val currentPlaylist: StateFlow<PlaylistWithSongs?> = _currentPlaylist.asStateFlow()
 
-    private var mediaController: MediaController? = null
 
     var isShuffling by mutableStateOf(false)
         private set
+
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+
+    val mediaControllerInstance: MediaController?
+        get() = mediaController
 
     enum class RepeatMode {
         NONE,
@@ -51,9 +60,6 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
         isShuffling = !isShuffling
     }
 
-    fun setMediaController(controller: MediaController) {
-        mediaController = controller
-    }
 
     fun loadPlaylist(playlistId: Long) {
         viewModelScope.launch {
@@ -64,7 +70,7 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
         }
     }
 
-    fun playSong(song: Song) {
+    fun playSong(song: Song, onPrepared: (MediaController) -> Unit = {}) {
         viewModelScope.launch {
             val currentSongs = _currentPlaylist.value?.songs
             val isSongInCurrentPlaylist = currentSongs?.any { it.songId == song.songId } == true
@@ -86,6 +92,8 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
                 controller.setMediaItem(mediaItem)
                 controller.prepare()
                 controller.play()
+                _isPlaying.value = true
+                onPrepared(controller)
             }
         }
     }
@@ -140,4 +148,29 @@ class PlayerViewModel(private val playlistDataSource: BasePlaylistDataSource) : 
             setCustomPlaylist(fallbackSongs, fallbackSong)
         }
     }
+
+    fun pause() {
+        mediaController?.pause() ?: Log.w("PlayerViewModel", "MediaController not connected")
+        _isPlaying.value = false
+    }
+
+    fun resume() {
+        mediaController?.let { controller ->
+            // Nếu chưa có media item hoặc đang ở trạng thái idle, cần gọi prepare
+            if (controller.currentMediaItem == null) {
+                _currentSong.value?.let { song ->
+                    val mediaItem = MediaItem.Builder()
+                        .setUri(song.songUri.toUri())
+                        .setMediaId(song.songUri)
+                        .build()
+                    controller.setMediaItem(mediaItem)
+                    controller.prepare()
+                }
+            }
+            controller.play()
+            _isPlaying.value = true
+        } ?: Log.w("PlayerViewModel", "MediaController not connected")
+    }
+
+
 }
