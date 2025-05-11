@@ -124,6 +124,12 @@ fun SoundApp(
             composable(route = Screen.Login.route) {
                 LoginScreen(
                     authViewModel = authViewModel,
+                    onLoginButtonClicked = { username, password ->
+
+                    },
+                    onSignupRouteClicked = {
+                        navController.navigate(Screen.Signup.route)
+                    },
                     onLoginSuccess = { token ->
 //                        tokenManager.putToken(token)
                         navController.navigate(Screen.Home.route)
@@ -134,6 +140,12 @@ fun SoundApp(
             composable(route = Screen.Signup.route) {
                 SignupScreen(
                     authViewModel = authViewModel,
+                    onLoginRouteClicked = {
+                        navController.navigate(Screen.Login.route)
+                    },
+                    onRegisterButtonClicked = { username, email, password ->
+
+                    },
                     onSignupSuccess = { token ->
 //                        tokenManager.putToken(token)
                         navController.navigate(Screen.Home.route)
