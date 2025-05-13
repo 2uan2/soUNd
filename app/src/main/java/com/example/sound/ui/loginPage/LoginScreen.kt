@@ -47,7 +47,8 @@ import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory()),
-    onLoginSuccess: (String) -> Unit = {}  // callback nếu muốn chuyển màn sau khi login thành công
+    onLoginSuccess: (String) -> Unit = {}  // callback nếu muốn chuyển màn sau khi login thành công,
+
 ) {
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
@@ -79,9 +80,7 @@ fun LoginScreen(
             color = Color("#7d32a8".toColorInt())
         )
 
-//        var user by remember { mutableStateOf("Username") }
-//        var pass by remember { mutableStateOf("Password") }
-        var passwordVisible by remember { mutableStateOf(false) }
+        val passwordVisible by remember { mutableStateOf(false) }
 
 
         TextField(

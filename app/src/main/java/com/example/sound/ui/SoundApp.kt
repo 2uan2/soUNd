@@ -128,7 +128,9 @@ fun SoundApp(
 //                        tokenManager.putToken(token)
                         navController.navigate(Screen.Home.route)
 //                        Log.i("SoundApp", tokenManager.getToken() ?: "no token lol")
-                    }
+
+                    },
+
                 )
             }
             composable(route = Screen.Signup.route) {
