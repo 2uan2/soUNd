@@ -2,7 +2,10 @@ package com.example.sound.ui.home
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -68,6 +71,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.foundation.background
+import androidx.compose.runtime.LaunchedEffect
+import com.example.sound.ui.shared.isAlbumArtAvailable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,6 +148,7 @@ fun HomeScreen(
             authState = authState,
             songContainerList = uiState.songContainers,
             onSongClick = { selectedSong ->
+                Log.d("AlbumID", "Clicked song albumId = ${selectedSong.albumId}")
                 playerViewModel.setCustomPlaylist(songList, selectedSong)
                 onSongClick(selectedSong)
             },
@@ -310,10 +316,19 @@ fun SongContainer(
     authState: AuthState = AuthState.Unauthenticated,
     songUploadUiState: SongUploadUiState = SongUploadUiState.Idle,
     onSongClick: (Song) -> Unit,
-    onSongShareClick: (Song, File, File) -> Unit = { song, songFile, albumArtFile -> },
+    onSongShareClick: (Song, File, File) -> Unit = { _, _, _ -> },
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val hasAlbumArt = remember(song.albumId) {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(song.albumId) {
+        song.albumId?.let {
+            hasAlbumArt.value = isAlbumArtAvailable(context, it)
+        }
+    }
 
     Card(
         modifier = modifier
@@ -330,15 +345,18 @@ fun SongContainer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Album Art
-            val albumId = song.albumId
-            val albumArtUri = if (albumId != null) {
+            val albumArtUri = if (hasAlbumArt.value && song.albumId != null) {
                 ContentUris.withAppendedId(
-                    "content://media/external/audio/albumart".toUri(), albumId
+                    "content://media/external/audio/albumart".toUri(),
+                    song.albumId
                 )
-            } else null
+            } else {
+                "android.resource://${context.packageName}/${R.drawable.faker1}".toUri()
+            }
+
+
             AsyncImage(
-                model = albumArtUri
-                    ?: "android.resource://${context.packageName}/${R.drawable.faker1}".toUri(),
+                model = albumArtUri,
                 contentDescription = null,
                 modifier = Modifier
                     .size(56.dp)
@@ -380,13 +398,6 @@ fun SongContainer(
             if (authState == AuthState.Authenticated) {
                 IconButton(
                     onClick = {
-                        val albumId = song.albumId
-                        val albumArtUri = if (albumId != null) {
-                            ContentUris.withAppendedId(
-                                "content://media/external/audio/albumart".toUri(), albumId
-                            )
-                        } else "android.resource://${context.packageName}/R.drawable.faker1".toUri()
-
                         val songFile = File(context.cacheDir, "${song.name}.mp3")
                         songFile.createNewFile()
                         context.contentResolver.openInputStream(song.songUri.toUri())
@@ -397,17 +408,24 @@ fun SongContainer(
                             }
                             ?: throw IllegalArgumentException("Cannot open input stream from: ${song.songUri}")
 
-                        val albumArtMimeType = context.contentResolver.getType(albumArtUri)
-                        val albumArtExtensionType =
-                            MimeTypeMap.getSingleton().getExtensionFromMimeType(albumArtMimeType)
-                        val albumArtFile =
-                            File(context.cacheDir, "albumArt.${albumArtExtensionType ?: "bin"}")
-                        albumArtFile.createNewFile()
-                        context.contentResolver.openInputStream(albumArtUri)?.use { inputStream ->
+                        val albumArtFile = File(context.cacheDir, "albumArt.jpg")
+                        if (hasAlbumArt.value && song.albumId != null) {
+                            // Trường hợp có album art từ MediaStore
+                            context.contentResolver.openInputStream(albumArtUri)
+                                ?.use { inputStream ->
+                                    albumArtFile.outputStream().use { outputStream ->
+                                        inputStream.copyTo(outputStream)
+                                    }
+                                }
+                        } else {
+                            // Trường hợp không có album art → dùng ảnh mặc định từ drawable
+                            val bitmap =
+                                BitmapFactory.decodeResource(context.resources, R.drawable.faker1)
                             albumArtFile.outputStream().use { outputStream ->
-                                inputStream.copyTo(outputStream)
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
                             }
                         }
+
                         onSongShareClick(song, songFile, albumArtFile)
                     }, modifier = Modifier.size(40.dp)
                 ) {
@@ -463,7 +481,7 @@ fun Preview() {
             duration = 100000,
         ),
         onSongClick = {},
-        onSongShareClick = { song, songFile, albumArtFile ->
+        onSongShareClick = { _, _, _ ->
 
         },
     )
