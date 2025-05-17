@@ -76,11 +76,11 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
 
     ) {
-        Image(
-            painterResource(id = R.drawable.wave),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds
-        )
+//        Image(
+//            painterResource(id = R.drawable.wave),
+//            contentDescription = null,
+//            contentScale = ContentScale.FillBounds
+//        )
 
         Image(
             painterResource(id = R.drawable.logo),
@@ -202,57 +202,3 @@ fun LoginScreen(
         }
     }
 }
-
-//@Composable
-//fun LoginScreen(
-//    authUiState: AuthUiState,
-//    onLoginButtonClicked: (String, String) -> Unit,
-//    onLoginSuccess: (String, String) -> Unit,
-//    onRegisterClicked: () -> Unit = {},
-//) {
-//    var username by remember { mutableStateOf("") }
-//    var pass by remember { mutableStateOf("") }
-//
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        modifier = Modifier
-//    ) {
-//        Text(
-//            text = "Register",
-//            color = Color.Blue,
-//            modifier = Modifier
-//                .clickable(
-//                    onClick = onRegisterClicked
-//                ),
-//        )
-//
-//        when (authUiState) {
-//            is AuthUiState.Loading -> Text("Logging in...", color = Color.Gray)
-//            is AuthUiState.Error -> Text("Error: ${authUiState.message}", color = Color.Red)
-//            is AuthUiState.Success -> {
-//                Text("Log in Success!", color = Color.Green)
-//                LaunchedEffect(Unit) {
-//                    onLoginSuccess(authUiState.token)//, authUiState.userId)
-//                }
-//            }
-//
-//            else -> {}
-//        }
-//
-//        Button(
-//            onClick = {
-////                authViewModel.login(username, pass)
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(66.dp)
-//                .padding(start = 64.dp, end = 64.dp, top = 8.dp, bottom = 8.dp),
-//            colors = ButtonDefaults.buttonColors(containerColor = Color("#7d32a8".toColorInt())),
-//            shape = RoundedCornerShape(50)
-//        ) {
-//            Text("Login", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-//        }
-//    }
-//
-//
-//}
