@@ -42,7 +42,7 @@ class MediaStoreDataSource(
             val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
             val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-            val albumId = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
+            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
 //            val albumArtUri = cursor.
             while(cursor.moveToNext()) {
@@ -50,7 +50,7 @@ class MediaStoreDataSource(
                 val title = cursor.getString(titleColumn)
                 val artist = cursor.getString(artistColumn)
                 val duration = cursor.getLong(durationColumn)
-                val albumId = cursor.getLong(albumId)
+                val albumId = cursor.getLong(albumIdColumn)
                 val contentUri = ContentUris.withAppendedId(collection, id)
 
                 songList.add(
