@@ -72,6 +72,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.foundation.background
 import androidx.compose.runtime.LaunchedEffect
+import com.example.sound.ui.shared.EmptySongListUI
 import com.example.sound.ui.shared.isAlbumArtAvailable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -265,30 +266,7 @@ fun HomeBody(
 
         // Song List
         if (filteredSongContainers.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        Icons.Default.MusicNote,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = if (queryText.isNotEmpty()) "No songs found" else "No songs available",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            EmptySongListUI(queryText = queryText)
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
