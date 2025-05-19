@@ -130,7 +130,7 @@ fun MiniPlayer(
                         )
                         // Time display
                         Text(
-                            text = "${FormatTime(currentPosition)} / ${FormatTime(duration)}",
+                            text = "${formatTime(currentPosition)} / ${formatTime(duration)}",
                             style = MaterialTheme.typography.bodySmall.copy(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                             )

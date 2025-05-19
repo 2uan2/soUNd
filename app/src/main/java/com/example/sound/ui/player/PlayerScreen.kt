@@ -58,7 +58,7 @@ import androidx.core.net.toUri
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
-import com.example.sound.ui.shared.FormatTime
+import com.example.sound.ui.shared.formatTime
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -220,8 +220,8 @@ fun PlayerScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(FormatTime(position), color = Color.Gray)
-                    Text(FormatTime(duration), color = Color.Gray)
+                    Text(formatTime(position), color = Color.Gray)
+                    Text(formatTime(duration), color = Color.Gray)
                 }
             }
 

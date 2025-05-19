@@ -61,7 +61,7 @@ import com.example.sound.R
 import com.example.sound.data.database.model.Song
 import com.example.sound.ui.AppViewModelProvider
 import com.example.sound.ui.player.PlayerViewModel
-import com.example.sound.ui.player.formatTime
+import com.example.sound.ui.shared.formatTime
 import java.io.File
 import androidx.core.net.toUri
 import com.example.sound.ui.loginPage.authService.AuthState

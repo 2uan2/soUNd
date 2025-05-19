@@ -15,7 +15,7 @@ fun RemoteSongDto.toLocalSong(): Song {
         name = this.name,
         artist = this.artist,
         duration = this.duration.toLong(),
-        albumId = null, // Server không gửi, bạn có thể để null hoặc xử lý tùy yêu cầu
+        albumId = null, // Server không gửi, có thể để null hoặc xử lý tùy yêu cầu
         coverImage = this.cover_image
     )
 }

@@ -123,7 +123,7 @@ fun SongContainer(
 
             // Duration
             Text(
-                text = FormatTime(song.duration),
+                text = formatTime(song.duration),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp)
