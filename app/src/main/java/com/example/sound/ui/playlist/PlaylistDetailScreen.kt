@@ -22,7 +22,7 @@ import androidx.compose.runtime.getValue
 import com.example.sound.data.database.model.Song
 import com.example.sound.ui.shared.SongContainer
 import com.example.sound.ui.player.PlayerViewModel
-import com.example.sound.ui.shared.FormatTime
+import com.example.sound.ui.shared.formatTime
 
 
 @OptIn(ExperimentalMaterial3Api::class)
