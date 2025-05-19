@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MusicNote
@@ -19,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.ui.AppViewModelProvider
-import com.example.sound.ui.home.SongContainer
+import com.example.sound.ui.shared.SongContainer
 
 //const val TAG = "PlaylistEntryScreen"
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +50,7 @@ fun PlaylistEntryScreen(
                 navigationIcon = {
                     IconButton(onClick = { /* TODO: Add back navigation */ }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
