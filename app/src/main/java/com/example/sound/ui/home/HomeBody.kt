@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.example.sound.data.database.model.Song
 import com.example.sound.ui.loginPage.authService.AuthState
 import com.example.sound.ui.shared.EmptySongListUI
+import com.example.sound.ui.shared.RemoteSongContainer
 import com.example.sound.ui.shared.SongContainer
 
 @Composable
@@ -143,15 +144,41 @@ fun HomeBody(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredSongContainers) { songContainer ->
-                    SongContainer(
-                        authState = authState,
-                        song = songContainer.song,
-                        songUploadUiState = songContainer.songUploadState,
-                        onSongClick = onSongClick,
-                        onSongShareClick = { song, songFile, albumArtFile ->
-                            viewModel.uploadSong(song, songFile, albumArtFile)
+
+                    when (currentSource) {
+                        SongSourceType.LOCAL -> {
+                            SongContainer(
+                                authState = authState,
+                                song = songContainer.song,
+                                songUploadUiState = songContainer.songUploadState,
+                                onSongClick = onSongClick,
+                                onSongShareClick = { song, songFile, albumArtFile ->
+                                    viewModel.uploadSong(song, songFile, albumArtFile)
+                                }
+                            )
                         }
-                    )
+
+                        SongSourceType.REMOTE -> {
+                            RemoteSongContainer(
+                                authState = authState,
+                                song = songContainer.song,
+                                songUploadUiState = songContainer.songUploadState,
+                                onSongClick = onSongClick,
+                                onSongShareClick = { song, songFile, albumArtFile ->
+                                    viewModel.uploadSong(song, songFile, albumArtFile)
+                                }
+                            )
+                        }
+                    }
+//                    SongContainer(
+//                        authState = authState,
+//                        song = songContainer.song,
+//                        songUploadUiState = songContainer.songUploadState,
+//                        onSongClick = onSongClick,
+//                        onSongShareClick = { song, songFile, albumArtFile ->
+//                            viewModel.uploadSong(song, songFile, albumArtFile)
+//                        }
+//                    )
                 }
             }
         }
