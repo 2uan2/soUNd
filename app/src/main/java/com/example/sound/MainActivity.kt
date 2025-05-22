@@ -7,6 +7,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat
 import com.example.sound.ui.loginPage.LoginScreen
 import com.example.sound.ui.loginPage.SignupScreen
@@ -26,8 +31,17 @@ class MainActivity : ComponentActivity() {
         )
         enableEdgeToEdge()
         setContent {
-            SoUNdTheme {
-                SoundApp()
+            val systemDarkMode = isSystemInDarkTheme()
+            var isDarkMode by remember { mutableStateOf(systemDarkMode) }
+            SoUNdTheme(
+                darkTheme = isDarkMode
+            ) {
+                SoundApp(
+                    isDarkMode = isDarkMode,
+                    onDarkModeClicked = {
+                        isDarkMode = !isDarkMode
+                    }
+                )
 //                LoginScreen()
 //                SignupScreen()
 //                WaitingScreen()
