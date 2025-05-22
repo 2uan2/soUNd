@@ -50,9 +50,7 @@ import java.io.File
 fun RemoteSongContainer(
     song: Song,
     authState: AuthState = AuthState.Unauthenticated,
-    songUploadUiState: SongUploadUiState = SongUploadUiState.Idle,
     onSongClick: (Song) -> Unit,
-    onSongShareClick: (Song, File, File) -> Unit = { _, _, _ -> },
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -90,7 +88,6 @@ fun RemoteSongContainer(
                 "android.resource://${context.packageName}/${R.drawable.faker1}".toUri()
             }
 
-
             AsyncImage(
                 model = albumArtUri,
                 contentDescription = null,
@@ -127,82 +124,24 @@ fun RemoteSongContainer(
                 text = formatTime(song.duration),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Red,
-//                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
 
-            // Upload Button (if authenticated)
-            if (authState == AuthState.Authenticated) {
-                IconButton(
-                    onClick = {
-                        val songFile = File(context.cacheDir, "${song.name}.mp3")
-                        songFile.createNewFile()
-                        context.contentResolver.openInputStream(song.songUri.toUri())
-                            ?.use { inputStream ->
-                                songFile.outputStream().use { outputStream ->
-                                    inputStream.copyTo(outputStream)
-                                }
-                            }
-                            ?: throw IllegalArgumentException("Cannot open input stream from: ${song.songUri}")
-
-                        val albumArtFile = File(context.cacheDir, "albumArt.jpg")
-                        if (hasAlbumArt.value && song.albumId != null) {
-                            // Trường hợp có album art từ MediaStore
-                            context.contentResolver.openInputStream(albumArtUri)
-                                ?.use { inputStream ->
-                                    albumArtFile.outputStream().use { outputStream ->
-                                        inputStream.copyTo(outputStream)
-                                    }
-                                }
-                        } else {
-                            // Trường hợp không có album art → dùng ảnh mặc định từ drawable
-                            val bitmap =
-                                BitmapFactory.decodeResource(context.resources, R.drawable.faker1)
-                            albumArtFile.outputStream().use { outputStream ->
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-                            }
-                        }
-
-                        onSongShareClick(song, songFile, albumArtFile)
-                    }, modifier = Modifier.size(40.dp)
-                ) {
-                    when (songUploadUiState) {
-                        is SongUploadUiState.Error -> {
-                            Icon(
-                                Icons.Default.Error,
-                                contentDescription = "Upload Error",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-
-                        SongUploadUiState.Idle -> {
-                            Icon(
-                                Icons.Default.ArrowUpward,
-                                contentDescription = "Upload Song",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        SongUploadUiState.Loading -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        is SongUploadUiState.Success -> {
-                            Icon(
-                                Icons.Default.ThumbUp,
-                                contentDescription = "Upload Success",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Toast.makeText(
-                                context, songUploadUiState.song.songUri, Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                }
+            // Like button (for future favorite feature)
+            IconButton(
+                onClick = {
+                    // TODO: Handle like/favorite logic
+                    Toast
+                        .makeText(context, "Liked ${song.name}", Toast.LENGTH_SHORT)
+                        .show()
+                },
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ThumbUp,
+                    contentDescription = "Like Song",
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }
