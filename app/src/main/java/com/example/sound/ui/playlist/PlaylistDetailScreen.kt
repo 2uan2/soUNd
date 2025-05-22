@@ -20,8 +20,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.ui.AppViewModelProvider
 import androidx.compose.runtime.getValue
 import com.example.sound.data.database.model.Song
-import com.example.sound.ui.home.SongContainer
+import com.example.sound.ui.shared.SongContainer
 import com.example.sound.ui.player.PlayerViewModel
+import com.example.sound.ui.shared.formatTime
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -201,6 +203,6 @@ fun PlaylistDetailScreen(
 }
 
 private fun calculateTotalDuration(songs: List<Song>): String {
-    // TODO: Implement actual duration calculation
-    return "0:00"
+    val totalDurationMs = songs.sumOf { it.duration }
+    return formatTime(totalDurationMs)
 }

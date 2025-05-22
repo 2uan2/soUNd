@@ -2,7 +2,10 @@ package com.example.sound.ui.home
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -58,7 +61,7 @@ import com.example.sound.R
 import com.example.sound.data.database.model.Song
 import com.example.sound.ui.AppViewModelProvider
 import com.example.sound.ui.player.PlayerViewModel
-import com.example.sound.ui.player.formatTime
+import com.example.sound.ui.shared.formatTime
 import java.io.File
 import androidx.core.net.toUri
 import com.example.sound.ui.loginPage.authService.AuthState
@@ -68,6 +71,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.foundation.background
+import androidx.compose.runtime.LaunchedEffect
+import com.example.sound.ui.shared.EmptySongListUI
+import com.example.sound.ui.shared.isAlbumArtAvailable
+import com.example.sound.ui.shared.SongContainer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,6 +150,7 @@ fun HomeScreen(
             authState = authState,
             songContainerList = uiState.songContainers,
             onSongClick = { selectedSong ->
+                Log.d("AlbumID", "Clicked song albumId = ${selectedSong.albumId}")
                 playerViewModel.setCustomPlaylist(songList, selectedSong)
                 onSongClick(selectedSong)
             },
@@ -155,316 +163,3 @@ fun HomeScreen(
     }
 }
 
-@Composable
-fun HomeBody(
-    authState: AuthState,
-    songContainerList: List<SongContainerUiState>,
-    onSongClick: (Song) -> Unit,
-    viewModel: HomeViewModel,
-    modifier: Modifier,
-    queryText: String
-) {
-    val currentSource by viewModel.currentSource.collectAsState()
-
-    val filteredSongContainers = songContainerList.filter {
-        it.song.name.contains(queryText, ignoreCase = true) ||
-                it.song.artist?.contains(queryText, ignoreCase = true) == true
-    }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.song.name })
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Source Selection Buttons
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = {
-                        viewModel.switchSource(SongSourceType.LOCAL)
-                    },
-                    enabled = currentSource != SongSourceType.LOCAL,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (currentSource == SongSourceType.LOCAL)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    Text(
-                        "Local Songs",
-                        color = if (currentSource == SongSourceType.LOCAL)
-                            MaterialTheme.colorScheme.onPrimary
-                        else
-                            MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        viewModel.switchSource(SongSourceType.REMOTE)
-                        viewModel.loadRemoteSongs()
-                    },
-                    enabled = currentSource != SongSourceType.REMOTE,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (currentSource == SongSourceType.REMOTE)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    Text(
-                        "Remote Songs",
-                        color = if (currentSource == SongSourceType.REMOTE)
-                            MaterialTheme.colorScheme.onPrimary
-                        else
-                            MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Refresh Button
-        OutlinedButton(
-            onClick = viewModel::refreshSongs,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.primary
-            )
-        ) {
-            Icon(
-                Icons.Default.Refresh,
-                contentDescription = "Refresh",
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Refresh songs")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Song List
-        if (filteredSongContainers.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        Icons.Default.MusicNote,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = if (queryText.isNotEmpty()) "No songs found" else "No songs available",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(filteredSongContainers) { songContainer ->
-                    SongContainer(
-                        authState = authState,
-                        song = songContainer.song,
-                        songUploadUiState = songContainer.songUploadState,
-                        onSongClick = onSongClick,
-                        onSongShareClick = { song, songFile, albumArtFile ->
-                            viewModel.uploadSong(song, songFile, albumArtFile)
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun SongContainer(
-    song: Song,
-    authState: AuthState = AuthState.Unauthenticated,
-    songUploadUiState: SongUploadUiState = SongUploadUiState.Idle,
-    onSongClick: (Song) -> Unit,
-    onSongShareClick: (Song, File, File) -> Unit = { song, songFile, albumArtFile -> },
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onSongClick(song) },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Album Art
-            val albumId = song.albumId
-            val albumArtUri = if (albumId != null) {
-                ContentUris.withAppendedId(
-                    "content://media/external/audio/albumart".toUri(), albumId
-                )
-            } else null
-            AsyncImage(
-                model = albumArtUri
-                    ?: "android.resource://${context.packageName}/${R.drawable.faker1}".toUri(),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(MaterialTheme.shapes.medium),
-                contentScale = ContentScale.Crop
-            )
-
-            // Song Info
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 12.dp)
-            ) {
-                Text(
-                    text = song.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = song.artist ?: "Unknown artist",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-            }
-
-            // Duration
-            Text(
-                text = formatTime(song.duration),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-
-            // Upload Button (if authenticated)
-            if (authState == AuthState.Authenticated) {
-                IconButton(
-                    onClick = {
-                        val albumId = song.albumId
-                        val albumArtUri = if (albumId != null) {
-                            ContentUris.withAppendedId(
-                                "content://media/external/audio/albumart".toUri(), albumId
-                            )
-                        } else "android.resource://${context.packageName}/R.drawable.faker1".toUri()
-
-                        val songFile = File(context.cacheDir, "${song.name}.mp3")
-                        songFile.createNewFile()
-                        context.contentResolver.openInputStream(song.songUri.toUri())
-                            ?.use { inputStream ->
-                                songFile.outputStream().use { outputStream ->
-                                    inputStream.copyTo(outputStream)
-                                }
-                            }
-                            ?: throw IllegalArgumentException("Cannot open input stream from: ${song.songUri}")
-
-                        val albumArtMimeType = context.contentResolver.getType(albumArtUri)
-                        val albumArtExtensionType =
-                            MimeTypeMap.getSingleton().getExtensionFromMimeType(albumArtMimeType)
-                        val albumArtFile =
-                            File(context.cacheDir, "albumArt.${albumArtExtensionType ?: "bin"}")
-                        albumArtFile.createNewFile()
-                        context.contentResolver.openInputStream(albumArtUri)?.use { inputStream ->
-                            albumArtFile.outputStream().use { outputStream ->
-                                inputStream.copyTo(outputStream)
-                            }
-                        }
-                        onSongShareClick(song, songFile, albumArtFile)
-                    }, modifier = Modifier.size(40.dp)
-                ) {
-                    when (songUploadUiState) {
-                        is SongUploadUiState.Error -> {
-                            Icon(
-                                Icons.Default.Error,
-                                contentDescription = "Upload Error",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-
-                        SongUploadUiState.Idle -> {
-                            Icon(
-                                Icons.Default.ArrowUpward,
-                                contentDescription = "Upload Song",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        SongUploadUiState.Loading -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        is SongUploadUiState.Success -> {
-                            Icon(
-                                Icons.Default.ThumbUp,
-                                contentDescription = "Upload Success",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Toast.makeText(
-                                context, songUploadUiState.song.songUri, Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun Preview() {
-    SongContainer(
-        Song(
-            songUri = "testing",
-            name = "song",
-            duration = 100000,
-        ),
-        onSongClick = {},
-        onSongShareClick = { song, songFile, albumArtFile ->
-
-        },
-    )
-}

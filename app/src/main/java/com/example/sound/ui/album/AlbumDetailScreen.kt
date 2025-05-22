@@ -1,24 +1,22 @@
 package com.example.sound.ui.album
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.ui.AppViewModelProvider
 import com.example.sound.data.database.model.Song
-import com.example.sound.ui.home.SongContainer
+import com.example.sound.ui.shared.SongContainer
 import com.example.sound.ui.player.PlayerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -163,7 +161,16 @@ fun AlbumDetailScreen(
     }
 }
 
+@SuppressLint("DefaultLocale")
 private fun calculateTotalDuration(songs: List<Song>): String {
-    // TODO: Implement actual duration calculation
-    return "0:00"
+    val totalDurationMs = songs.sumOf { it.duration }
+    val totalSeconds = totalDurationMs / 1000
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+
+    return if (hours > 0) {
+        String.format("%d:%02d:%02d", hours, minutes, seconds)
+    } else
+        String.format("%d:%02d", minutes, seconds)
 }

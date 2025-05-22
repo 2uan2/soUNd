@@ -7,9 +7,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -43,6 +45,12 @@ import com.example.sound.ui.loginPage.authService.AuthUiState
 import com.example.sound.ui.loginPage.authService.AuthViewModel
 import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
 
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
+
+
+import androidx.compose.foundation.verticalScroll
+
 //@Preview(showBackground = true)
 @Composable
 fun LoginScreen(
@@ -56,18 +64,23 @@ fun LoginScreen(
     var pass by remember { mutableStateOf("") }
     val authUiState = authViewModel.authUiState
 
+    val scrollState = rememberScrollState()
+
     Column(
         Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(color = Color("#ffffff".toColorInt())),
+            .fillMaxSize()
+            .background(color = Color("#fcba03".toColorInt()))
+            .verticalScroll(scrollState)
+            .imePadding()
+            .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+
     ) {
-        Image(
-            painterResource(id = R.drawable.wave),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds
-        )
+//        Image(
+//            painterResource(id = R.drawable.wave),
+//            contentDescription = null,
+//            contentScale = ContentScale.FillBounds
+//        )
 
         Image(
             painterResource(id = R.drawable.logo),
@@ -82,7 +95,7 @@ fun LoginScreen(
             color = Color("#7d32a8".toColorInt())
         )
 
-        var passwordVisible by remember { mutableStateOf(false) }
+        val passwordVisible by remember { mutableStateOf(false) }
 
         TextField(
             value = user, { text -> user = text },
@@ -189,57 +202,3 @@ fun LoginScreen(
         }
     }
 }
-
-//@Composable
-//fun LoginScreen(
-//    authUiState: AuthUiState,
-//    onLoginButtonClicked: (String, String) -> Unit,
-//    onLoginSuccess: (String, String) -> Unit,
-//    onRegisterClicked: () -> Unit = {},
-//) {
-//    var username by remember { mutableStateOf("") }
-//    var pass by remember { mutableStateOf("") }
-//
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        modifier = Modifier
-//    ) {
-//        Text(
-//            text = "Register",
-//            color = Color.Blue,
-//            modifier = Modifier
-//                .clickable(
-//                    onClick = onRegisterClicked
-//                ),
-//        )
-//
-//        when (authUiState) {
-//            is AuthUiState.Loading -> Text("Logging in...", color = Color.Gray)
-//            is AuthUiState.Error -> Text("Error: ${authUiState.message}", color = Color.Red)
-//            is AuthUiState.Success -> {
-//                Text("Log in Success!", color = Color.Green)
-//                LaunchedEffect(Unit) {
-//                    onLoginSuccess(authUiState.token)//, authUiState.userId)
-//                }
-//            }
-//
-//            else -> {}
-//        }
-//
-//        Button(
-//            onClick = {
-////                authViewModel.login(username, pass)
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(66.dp)
-//                .padding(start = 64.dp, end = 64.dp, top = 8.dp, bottom = 8.dp),
-//            colors = ButtonDefaults.buttonColors(containerColor = Color("#7d32a8".toColorInt())),
-//            shape = RoundedCornerShape(50)
-//        ) {
-//            Text("Login", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-//        }
-//    }
-//
-//
-//}

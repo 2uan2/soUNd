@@ -16,7 +16,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sound.ui.Screen
 
@@ -59,7 +61,11 @@ fun MyBottomBar(navController: NavController) {
 
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
-    NavigationBar {
+    NavigationBar(
+        //test background
+        containerColor = Color.Transparent, // 👈 Làm trong suốt
+        tonalElevation = 0.dp // 👈 Loại bỏ đổ bóng (nếu cần)
+    ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = selectedItemIndex == index,
