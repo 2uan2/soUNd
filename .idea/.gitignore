@@ -1,5 +1,3 @@
 # Default ignored files
 /shelf/
 /workspace.xml
-app/src/main/res/xml/network_security_config.xml
-app/src/main/java/com/example/sound/data/network/RetrofitInstance.kt

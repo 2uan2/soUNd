@@ -43,6 +43,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import com.example.sound.ui.shared.WaitingScreen
+import com.example.sound.ui.user.LibraryScreen
+import kotlin.toString
 
 
 sealed class Screen(val route: String) {
@@ -79,12 +81,14 @@ const val TAG = "SoundApp"
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SoundApp(
-
+    isDarkMode: Boolean,
+    onDarkModeClicked: () -> Unit,
 ) {
     val navController: NavHostController = rememberNavController()
     val context = LocalContext.current
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory())
     val authState = authViewModel.authState.collectAsState()
+    val username by authViewModel.username.collectAsState()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
     val mediaControllerReady by SoundApplication.mediaControllerReady.collectAsState(false)
@@ -139,7 +143,20 @@ fun SoundApp(
                 )
             }
             composable(route = Screen.Account.route) {
-
+                LibraryScreen(
+                    username = username ?: "Anonymous User",
+                    isDarkMode = isDarkMode,
+                    onDarkModeClicked = onDarkModeClicked,
+                    onLogoutButtonClicked = {
+                        authViewModel.logout()
+                        Log.i("SoundApp", authState.toString())
+                        navController.navigate(Screen.Login.route)
+                    },
+                    onUserUnauthenticated = {
+                        navController.navigate(Screen.Login.route)
+                    },
+                    authState = authState.value,
+                )
             }
             composable(route = Screen.Signup.route) {
                 SignupScreen(
