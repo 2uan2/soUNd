@@ -162,23 +162,11 @@ fun HomeBody(
                             RemoteSongContainer(
                                 authState = authState,
                                 song = songContainer.song,
-                                songUploadUiState = songContainer.songUploadState,
                                 onSongClick = onSongClick,
-                                onSongShareClick = { song, songFile, albumArtFile ->
-                                    viewModel.uploadSong(song, songFile, albumArtFile)
-                                }
                             )
                         }
                     }
-//                    SongContainer(
-//                        authState = authState,
-//                        song = songContainer.song,
-//                        songUploadUiState = songContainer.songUploadState,
-//                        onSongClick = onSongClick,
-//                        onSongShareClick = { song, songFile, albumArtFile ->
-//                            viewModel.uploadSong(song, songFile, albumArtFile)
-//                        }
-//                    )
+
                 }
             }
         }

@@ -44,7 +44,7 @@ dependencies {
 
     // ✅ MEDIA + ICONS + FOUNDATION
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    implementation("androidx.media3:media3-ui:1.6.1")
+    implementation("androidx.media3:media3-ui:1.7.1")
     implementation("androidx.media3:media3-exoplayer:1.6.1")
     implementation("androidx.media3:media3-session:1.6.1")
     implementation("androidx.media3:media3-common:1.6.1")
