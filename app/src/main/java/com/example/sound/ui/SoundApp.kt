@@ -64,6 +64,7 @@ sealed class Screen(val route: String) {
 
     object Login : Screen("login")
     object Signup : Screen("register")
+    object Account : Screen("account")
 
     companion object {
         const val ARG_SONG_URI = "songUri"
@@ -86,7 +87,7 @@ fun SoundApp(
     val authState = authViewModel.authState.collectAsState()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    val mediaControllerReady by SoundApplication.mediaControllerReady.observeAsState(false)
+    val mediaControllerReady by SoundApplication.mediaControllerReady.collectAsState(false)
 
     if (!mediaControllerReady) {
         WaitingScreen()
@@ -136,6 +137,9 @@ fun SoundApp(
 //                        Log.i("SoundApp", tokenManager.getToken() ?: "no token lol")
                     }
                 )
+            }
+            composable(route = Screen.Account.route) {
+
             }
             composable(route = Screen.Signup.route) {
                 SignupScreen(
