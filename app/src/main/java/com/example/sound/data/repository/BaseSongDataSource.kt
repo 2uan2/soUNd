@@ -43,6 +43,9 @@ interface BaseSongDataSource {
     ): Result<SongUploadResponse>
 
     suspend fun getRemoteSongs(): Result<List<Song>>
+
+
+
 }
 
 class LocalSongDataSource(
