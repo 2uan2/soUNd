@@ -175,7 +175,8 @@ fun SoundApp(
                 PlaylistEntryScreen(
                     onCreateButtonClicked = {
                         navController.navigate(Screen.PlaylistList.route)
-                    }
+                    },
+                    onBackClick = { navController.popBackStack() }
                 )
             }
             composable(

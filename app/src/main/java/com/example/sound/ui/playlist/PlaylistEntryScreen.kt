@@ -27,6 +27,7 @@ import com.example.sound.ui.shared.SongContainer
 @Composable
 fun PlaylistEntryScreen(
     onCreateButtonClicked: () -> Unit,
+    onBackClick: () -> Unit,
     viewModel: PlaylistEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -48,7 +49,7 @@ fun PlaylistEntryScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO: Add back navigation */ }) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
