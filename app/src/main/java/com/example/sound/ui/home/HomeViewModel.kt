@@ -133,6 +133,16 @@ class HomeViewModel(
         }
     }
 
+    fun onFavouriteToggle(serverId: Int) {
+        viewModelScope.launch {
+            songDataSource.toggleFavourite(serverId)
+
+            if (currentSource.value == SongSourceType.REMOTE) {
+                loadRemoteSongs()
+            }
+        }
+    }
+
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }

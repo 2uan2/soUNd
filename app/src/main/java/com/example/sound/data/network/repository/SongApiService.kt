@@ -10,6 +10,7 @@ import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 
 interface SongApiService {
     @Multipart
@@ -27,4 +28,10 @@ interface SongApiService {
     suspend fun getRemoteSongs(
         @Header("Authorization") authHeader: String
     ): Response<List<RemoteSongDto>>
+
+    @GET("song/{id}/favourite/")
+    suspend fun toggleFavourite(
+        @Header("Authorization") authString: String,
+        @Path("id") serverId: Int
+    ): Response<Unit>
 }

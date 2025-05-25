@@ -60,7 +60,9 @@ class MediaStoreDataSource(
                         artist = artist,
                         duration = duration,
                         albumId = albumId,
-                        coverImage = null
+                        coverImage = null,
+                        isFavourited = false,
+                        serverId = -1
                     )
                 )
             }

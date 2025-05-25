@@ -43,6 +43,8 @@ interface BaseSongDataSource {
     ): Result<SongUploadResponse>
 
     suspend fun getRemoteSongs(): Result<List<Song>>
+
+    suspend fun toggleFavourite(serverId: Int)
 }
 
 class LocalSongDataSource(
@@ -83,11 +85,29 @@ class LocalSongDataSource(
         }
     }
 
+    override suspend fun toggleFavourite(serverId: Int) {
+        val token = tokenManager.getToken()
+        if (token != null) {
+            try {
+                val response = RetrofitInstance.songApi.toggleFavourite("Token $token", serverId)
+                if (!response.isSuccessful) {
+                    Log.e("SongRepo", "Toggle favourite failed: ${response.code()} ${response.message()}")
+                }
+            } catch (e: Exception) {
+                Log.e("SongRepo", "Toggle favourite exception: ${e.localizedMessage}")
+            }
+        } else {
+            Log.e("SongRepo", "Token not found")
+        }
+
+    }
+
 
     override suspend fun refreshSongs() {
         val songs = mediaStore.loadSongFromMediaStore()
         songDao.insertAll(songs)
     }
+
 
     override suspend fun uploadSong(
         songName: String,

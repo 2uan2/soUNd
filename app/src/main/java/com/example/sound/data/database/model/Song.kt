@@ -16,5 +16,7 @@ data class Song(
     val albumId: Long? = null,
     val artist: String? = "Unknown artist",
     val duration: Long,
-    val coverImage: String? = null
+    val coverImage: String? = null,
+    val isFavourited: Boolean = false,
+    val serverId: Int = -1,
 )

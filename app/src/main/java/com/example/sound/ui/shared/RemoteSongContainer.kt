@@ -49,6 +49,8 @@ import java.io.File
 @Composable
 fun RemoteSongContainer(
     song: Song,
+    isFavourite: Boolean,
+    onFavouriteToggle: (Song) -> Unit,
     authState: AuthState = AuthState.Unauthenticated,
     onSongClick: (Song) -> Unit,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
@@ -130,7 +132,7 @@ fun RemoteSongContainer(
             // Like button (for future favorite feature)
             IconButton(
                 onClick = {
-                    // TODO: Handle like/favorite logic
+                    onFavouriteToggle(song)
                     Toast
                         .makeText(context, "Liked ${song.name}", Toast.LENGTH_SHORT)
                         .show()
@@ -140,7 +142,7 @@ fun RemoteSongContainer(
                 Icon(
                     imageVector = Icons.Default.ThumbUp,
                     contentDescription = "Like Song",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = if (isFavourite) Color.Red else MaterialTheme.colorScheme.primary
                 )
             }
         }

@@ -40,4 +40,13 @@ interface SongDao {
     fun getAllArtists(): Flow<List<String>>
 //    @Query("SELECT * FROM playlists WHERE playlistId = :id")
 //    fun getPlaylistWithSongs(id: Long): Flow<PlaylistWithSongs>
+
+    @Query("SELECT * FROM songs WHERE isFavourited = 1")
+    fun getFavouriteSongs(): Flow<List<Song>>
+
+    @Query("UPDATE songs SET isFavourited = :isFavourited WHERE songId = :songId")
+    suspend fun updateFavouriteStatus(songId: Long, isFavourited: Boolean)
+
+    @Query("SELECT * FROM songs WHERE songId = :id")
+    suspend fun getSongOnce(id: Long): Song?
 }

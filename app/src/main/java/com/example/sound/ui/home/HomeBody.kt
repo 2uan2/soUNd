@@ -44,6 +44,7 @@ fun HomeBody(
 ) {
     val currentSource by viewModel.currentSource.collectAsState()
 
+
     val filteredSongContainers = songContainerList.filter {
         it.song.name.contains(queryText, ignoreCase = true) ||
                 it.song.artist?.contains(queryText, ignoreCase = true) == true
@@ -162,19 +163,12 @@ fun HomeBody(
                             RemoteSongContainer(
                                 authState = authState,
                                 song = songContainer.song,
-                                onSongClick = onSongClick,
+                                isFavourite = songContainer.song.isFavourited, // truyền trạng thái yêu thích
+                                onFavouriteToggle = { viewModel.onFavouriteToggle(it.serverId) }, //  truyền callback
+                                onSongClick = onSongClick
                             )
                         }
                     }
-//                    SongContainer(
-//                        authState = authState,
-//                        song = songContainer.song,
-//                        songUploadUiState = songContainer.songUploadState,
-//                        onSongClick = onSongClick,
-//                        onSongShareClick = { song, songFile, albumArtFile ->
-//                            viewModel.uploadSong(song, songFile, albumArtFile)
-//                        }
-//                    )
                 }
             }
         }
