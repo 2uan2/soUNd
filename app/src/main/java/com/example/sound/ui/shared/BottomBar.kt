@@ -53,9 +53,9 @@ fun MyBottomBar(navController: NavController) {
             screen = Screen.PlaylistList
         ),
         BottomNavItem(
-            title = "Login",
+            title = "Account",
             icon = Icons.Default.AccountCircle,
-            screen = Screen.Login
+            screen = Screen.Account
         )
     )
 

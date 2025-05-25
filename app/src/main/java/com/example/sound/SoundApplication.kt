@@ -10,6 +10,8 @@ import com.example.sound.data.database.AppDataContainer
 import com.example.sound.musicService.MusicService
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class SoundApplication : Application() {
     companion object {
@@ -17,8 +19,8 @@ class SoundApplication : Application() {
         var mediaController: MediaController? = null
             private set
 
-        private val _mediaControllerReady = MutableLiveData(false)
-        val mediaControllerReady: LiveData<Boolean> get() = _mediaControllerReady
+        private val _mediaControllerReady = MutableStateFlow(false)
+        val mediaControllerReady: StateFlow<Boolean> get() = _mediaControllerReady
     }
 
     override fun onCreate() {
@@ -31,7 +33,7 @@ class SoundApplication : Application() {
         controllerFuture.addListener({
             try {
                 mediaController = controllerFuture.get()
-                _mediaControllerReady.postValue(true)
+                _mediaControllerReady.value = true
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -1,6 +1,6 @@
 package com.example.sound.ui.loginPage.authService
 
-import androidx.compose.runtime.collectAsState
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.sound.data.repository.TokenRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
@@ -23,6 +22,19 @@ class AuthViewModel(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Unauthenticated)
     val authState: StateFlow<AuthState> = _authState
 
+    private val _username = MutableStateFlow<String?>(null)
+    val username: StateFlow<String?> = _username
+
+    init {
+        Log.i("AuthViewModel", _authState.value.toString())
+        _authState.value =
+            if (tokenManager.isLoggedIn()) AuthState.Authenticated
+            else AuthState.Unauthenticated
+        _username.value = tokenManager.getUsername()
+//        _token.value = tokenManager.getToken()
+    }
+
+
     fun login(username: String, password: String) {
         viewModelScope.launch {
             authUiState = AuthUiState.Loading
@@ -30,7 +42,8 @@ class AuthViewModel(
             authUiState = result.fold(
                 onSuccess = {
                     _authState.value = AuthState.Authenticated
-                    tokenManager.putToken(it.token)
+                    _username.value = it.username
+                    tokenManager.putAuthInfo(it.token, it.username)
                     AuthUiState.Success(it.token)
                 },
                 onFailure = { AuthUiState.Error(it.message ?: "Unknown error") }
@@ -45,7 +58,8 @@ class AuthViewModel(
             authUiState = result.fold(
                 onSuccess = {
                     _authState.value = AuthState.Authenticated
-                    tokenManager.putToken(it.token)
+                    _username.value = it.username
+                    tokenManager.putAuthInfo(it.token, it.username)
                     AuthUiState.Success(it.token)
                 },
                 onFailure = { AuthUiState.Error(it.message ?: "Unknown error") }
@@ -55,7 +69,9 @@ class AuthViewModel(
 
     fun logout() {
         _authState.value = AuthState.Unauthenticated
-        tokenManager.clearToken()
+        _username.value = null
+        tokenManager.clear()
+        reset()
     }
 
     fun reset() {

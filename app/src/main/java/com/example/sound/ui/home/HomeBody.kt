@@ -44,7 +44,6 @@ fun HomeBody(
 ) {
     val currentSource by viewModel.currentSource.collectAsState()
 
-
     val filteredSongContainers = songContainerList.filter {
         it.song.name.contains(queryText, ignoreCase = true) ||
                 it.song.artist?.contains(queryText, ignoreCase = true) == true
