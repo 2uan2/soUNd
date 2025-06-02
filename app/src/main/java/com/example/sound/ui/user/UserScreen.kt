@@ -9,11 +9,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sound.data.database.model.Song
+import com.example.sound.ui.home.HomeViewModel
+import com.example.sound.ui.home.SongContainerUiState
 import com.example.sound.ui.loginPage.authService.AuthState
+import com.example.sound.ui.player.PlayerViewModel
 
 @Composable
 fun LibraryScreen(
@@ -23,10 +30,18 @@ fun LibraryScreen(
     onLogoutButtonClicked: () -> Unit,
     onUserUnauthenticated: () -> Unit,
     authState: AuthState = AuthState.Unauthenticated,
+    onSongClick: (Song) -> Unit,
+    playerViewModel: PlayerViewModel,
+    viewModel: HomeViewModel
+
 ) {
     Log.i("LibraryScreen", "authState is $authState")
+
     when (authState) {
         AuthState.Authenticated -> {
+            LaunchedEffect(Unit) {
+                viewModel.loadRemoteSongs()
+            }
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
@@ -58,15 +73,33 @@ fun LibraryScreen(
                                 .fillMaxWidth(),
                         )
                     }
+
                     TopBar()
                     Spacer(modifier = Modifier.height(12.dp))
                     CategoryTabs()
                     Spacer(modifier = Modifier.height(12.dp))
-                    LibraryList(items = emptyList())
+
+                    val allSongs by viewModel.songs.collectAsState()
+                    val uiState by viewModel.uiState.collectAsState()
+                    val favouriteRemoteSongs =
+                        allSongs.filter { (it.serverId != -1) && it.isFavourited }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
+                    LibraryList(
+                        authState = authState,
+                        songContainerList = uiState.songContainers,
+                        onSongClick = { selectedSong ->
+                            Log.d("AlbumID", "Clicked song albumId = ${selectedSong.albumId}")
+                            playerViewModel.setCustomPlaylist(favouriteRemoteSongs, selectedSong)
+                            onSongClick(selectedSong)
+                        },
+                        viewModel = viewModel,
+
+
+                    )
                 }
 
             }
         }
+
         AuthState.Unauthenticated -> {
             onUserUnauthenticated()
         }

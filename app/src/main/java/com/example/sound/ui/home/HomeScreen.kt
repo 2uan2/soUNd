@@ -82,8 +82,8 @@ fun HomeScreen(
     authState: AuthState,
     onSongClick: (Song) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    playerViewModel: PlayerViewModel = viewModel()
+    viewModel: HomeViewModel,
+    playerViewModel: PlayerViewModel // vừa bỏ đoạn = viewModel()
 ) {
     var queryText by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
@@ -97,6 +97,9 @@ fun HomeScreen(
         ) == true
     }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
 
+    LaunchedEffect(Unit) {
+        viewModel.loadRemoteSongs()
+    }
     Scaffold(
         modifier = modifier,
         topBar = {

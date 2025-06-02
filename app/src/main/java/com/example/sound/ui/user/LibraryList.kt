@@ -15,39 +15,45 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.sound.data.database.model.Song
+import com.example.sound.ui.home.HomeViewModel
+import com.example.sound.ui.home.SongContainerUiState
+import com.example.sound.ui.loginPage.authService.AuthState
+import com.example.sound.ui.shared.RemoteSongContainer
 
 data class LibraryItem(val title: String, val subtitle: String, val imageRes: Int)
+
 @Composable
-fun LibraryList(items: List<LibraryItem>) {
-    if (items.isEmpty()) {
-        // Tạm thời hiển thị dòng chữ "No items" nếu danh sách rỗng
+fun LibraryList(
+    authState: AuthState,
+    songContainerList: List<SongContainerUiState>,
+    onSongClick: (Song) -> Unit,
+    viewModel: HomeViewModel
+) {
+    if (songContainerList.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text("No items", color = Color.Gray)
+            Text("No favorite songs", color = Color.Gray)
         }
     } else {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.padding(16.dp)
         ) {
-            items(items) { item ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = item.imageRes),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(item.title, color = Color.White, fontWeight = FontWeight.Bold)
-                        Text(item.subtitle, color = Color.Gray, fontSize = 12.sp)
-                    }
-                }
+            val filteredSongContainers = songContainerList.filter { (it.song.serverId != -1) && it.song.isFavourited }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.song.name })
+
+            items(filteredSongContainers) { item ->
+                RemoteSongContainer(
+                    authState = authState,
+                    song = item.song,
+                    isFavourite = item.song.isFavourited,
+                    onFavouriteToggle = { viewModel.onFavouriteToggle(it.serverId) },
+                    onSongClick = onSongClick
+                )
             }
         }
     }
+
 }

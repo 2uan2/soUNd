@@ -42,6 +42,7 @@ import com.example.sound.ui.shared.MyBottomBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import com.example.sound.ui.home.HomeViewModel
 import com.example.sound.ui.shared.WaitingScreen
 import com.example.sound.ui.user.LibraryScreen
 import kotlin.toString
@@ -106,6 +107,8 @@ fun SoundApp(
 
     val showMiniPlayer = currentRoute != Screen.Player.route
 
+    val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+
     Scaffold(
         bottomBar = {
             if (currentRoute != Screen.Player.route) {
@@ -137,7 +140,7 @@ fun SoundApp(
                     },
                     onLoginSuccess = { token ->
 //                        tokenManager.putToken(token)
-                        navController.navigate(Screen.Home.route)
+                        navController.navigate(Screen.Account.route)
 //                        Log.i("SoundApp", tokenManager.getToken() ?: "no token lol")
                     }
                 )
@@ -156,6 +159,9 @@ fun SoundApp(
                         navController.navigate(Screen.Login.route)
                     },
                     authState = authState.value,
+                    onSongClick = {},
+                    playerViewModel = playerViewModel,
+                    viewModel = homeViewModel
                 )
             }
             composable(route = Screen.Signup.route) {
@@ -178,7 +184,8 @@ fun SoundApp(
                 HomeScreen(
                     authState = authState.value,
                     onSongClick = {},
-                    playerViewModel = playerViewModel
+                    playerViewModel = playerViewModel,
+                    viewModel = homeViewModel
                 )
             }
             composable(route = Screen.PlaylistList.route) {
