@@ -6,76 +6,58 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme // Import MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.IconButton // For clickable icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
-
-//@Composable
-//fun TopBar() {
-//    Row(
-//        modifier = Modifier.fillMaxWidth(),
-//        horizontalArrangement = Arrangement.SpaceBetween,
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//        Row(verticalAlignment = Alignment.CenterVertically) {
-//            Box(
-//                modifier = Modifier
-//                    .size(30.dp)
-//                    .clip(CircleShape)
-//                    .background(Color.Blue),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text("N", color = Color.White, fontWeight = FontWeight.Bold)
-//            }
-//            Spacer(modifier = Modifier.width(10.dp))
-//            Text("Your Library", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-//        }
-//        Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
-//    }
-//}
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp // This can often be replaced by MaterialTheme.typography
 
 @Composable
 fun TopBar() {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), // Thêm padding
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp), // Added padding for the whole row
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(36.dp) // Slightly larger avatar
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary), // Sử dụng màu primary
+                    .background(MaterialTheme.colorScheme.primary), // Use primary color for avatar background
                 contentAlignment = Alignment.Center
             ) {
+                // Assuming 'N' is the first letter of the username.
+                // In a real app, this might be dynamic or an image.
                 Text(
                     "N",
-                    color = MaterialTheme.colorScheme.onPrimary, // Sử dụng màu onPrimary
+                    color = MaterialTheme.colorScheme.onPrimary, // Use onPrimary for text on primary background
+                    style = MaterialTheme.typography.titleMedium, // Use Material 3 typography
                     fontWeight = FontWeight.Bold
                 )
             }
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(12.dp)) // Increased spacing
             Text(
                 "Your Library",
-                color = MaterialTheme.colorScheme.onBackground, // Sử dụng màu onBackground
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineSmall // Sử dụng kiểu chữ headlineSmall
+                color = MaterialTheme.colorScheme.onSurface, // Use onSurface for text color
+                style = MaterialTheme.typography.headlineSmall, // Use Material 3 typography
+                fontWeight = FontWeight.Bold
             )
         }
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "Search",
-            tint = MaterialTheme.colorScheme.onBackground // Sử dụng màu onBackground
-        )
+        IconButton(onClick = { /* Handle search click */ }) { // Make search icon clickable
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant // Use a softer tint for icons
+            )
+        }
     }
 }

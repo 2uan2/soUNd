@@ -8,7 +8,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,11 +40,17 @@ fun AlbumListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Albums", style = MaterialTheme.typography.titleLarge) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Albums",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -95,8 +110,9 @@ fun AlbumCard(
             .fillMaxWidth()
             .clickable(onClick = onAlbumClick),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        shape = MaterialTheme.shapes.medium
     ) {
         Row(
             modifier = Modifier
@@ -107,7 +123,7 @@ fun AlbumCard(
             Box(
                 modifier = Modifier
                     .size(56.dp)
-                    .clip(MaterialTheme.shapes.medium)
+                    .clip(MaterialTheme.shapes.small)
                     .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
