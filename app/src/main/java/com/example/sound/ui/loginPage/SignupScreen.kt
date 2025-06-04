@@ -40,9 +40,12 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.R
+import androidx.compose.ui.graphics.Brush
 import com.example.sound.ui.loginPage.authService.AuthUiState
 import com.example.sound.ui.loginPage.authService.AuthViewModel
 import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Arrangement
 
 @Preview(showBackground = true)
 @Composable
@@ -58,19 +61,22 @@ fun SignupScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     val authUiState = authViewModel.authUiState
+    val spotifyGreen = Color(0x333333)
 
     Column(
-        Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(color = Color("#ffffff".toColorInt())),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Image(
-            painterResource(id = R.drawable.wave),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds
-        )
+        verticalArrangement = Arrangement.Center
+    )
+
+    {
+//        Image(
+//            painterResource(id = R.drawable.wave),
+//            contentDescription = null,
+//            contentScale = ContentScale.FillBounds
+//        )
 
         Image(
             painterResource(id = R.drawable.logo),
@@ -213,57 +219,3 @@ fun SignupScreen(
     }
 }
 
-//@Composable
-//fun RegisterScreen(
-//    authUiState: AuthUiState,
-//    onRegisterButtonClicked: (String, String, String) -> Unit,
-//    onSignupSuccess: (String, String) -> Unit,
-//    onLoginClicked: () -> Unit = {},
-//) {
-//    var username by remember { mutableStateOf("") }
-//    var email by remember { mutableStateOf("") }
-//    var password by remember { mutableStateOf("") }
-//    var passwordVisible by remember { mutableStateOf(false) }
-////    val authUiState = authViewModel.authUiState
-//
-//    Column(
-//        Modifier
-//            .fillMaxWidth()
-//            .fillMaxHeight()
-//            .background(color = Color("#ffffff".toColorInt())),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//    ) {
-//        // Signup button
-//        Button(
-//            onClick = {
-//                onRegisterButtonClicked(username, email, password)
-////                authViewModel.register(username, email, password)
-//            },
-//            Modifier
-//                .fillMaxWidth()
-//                .height(66.dp)
-//                .padding(horizontal = 64.dp, vertical = 8.dp),
-//            colors = ButtonDefaults.buttonColors(containerColor = Color("#7d32a8".toColorInt())),
-//            shape = RoundedCornerShape(50)
-//        ) {
-//            Text(
-//                text = "Sign Up",
-//                color = Color.White,
-//                fontSize = 18.sp,
-//                fontWeight = FontWeight.Bold
-//            )
-//        }
-//
-//        when (authUiState) {
-//            is AuthUiState.Loading -> Text("Registering...", color = Color.Gray)
-//            is AuthUiState.Error -> Text("Error: ${authUiState.message}", color = Color.Red)
-//            is AuthUiState.Success -> {
-//                Text("Register Success!", color = Color.Green)
-//                LaunchedEffect(Unit) {
-//                    onSignupSuccess(authUiState.token, authUiState.userId)
-//                }
-//            }
-//            else -> {}
-//        }
-//    }
-//}

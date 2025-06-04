@@ -65,16 +65,16 @@ fun LoginScreen(
     val authUiState = authViewModel.authUiState
 
     val scrollState = rememberScrollState()
-
+    val spotifyGreen = Color(0x00000)
     Column(
         Modifier
             .fillMaxSize()
-            .background(color = Color("#fcba03".toColorInt()))
+            .background(Color.White)
             .verticalScroll(scrollState)
             .imePadding()
             .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-
+        verticalArrangement = Arrangement.Center
     ) {
 //        Image(
 //            painterResource(id = R.drawable.wave),

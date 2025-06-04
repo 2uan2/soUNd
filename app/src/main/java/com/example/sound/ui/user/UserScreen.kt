@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,22 +44,40 @@ fun LibraryScreen(
             LaunchedEffect(Unit) {
                 viewModel.loadRemoteSongs()
             }
-            Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
                         text = "Hello $username",
-                        fontSize = 24.sp
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
-                    Switch(
-                        checked = isDarkMode,
-                        onCheckedChange = { checked ->
-                            onDarkModeClicked()
-                        }
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Switch(
+                            checked = isDarkMode,
+                            onCheckedChange = { checked ->
+                                onDarkModeClicked()
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (isDarkMode) "Dark Mode" else "Light Mode",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (isDarkMode) MaterialTheme.colorScheme.onSurfaceVariant else Color.Black.copy(alpha = 0.8f)
+                        )
+                    }
+
                     Button(
                         onClick = onLogoutButtonClicked,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
@@ -96,7 +116,6 @@ fun LibraryScreen(
 
                     )
                 }
-
             }
         }
 

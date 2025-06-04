@@ -7,8 +7,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -19,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 @Composable
 fun TopBar() {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), // Thêm padding
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -28,14 +31,27 @@ fun TopBar() {
                 modifier = Modifier
                     .size(30.dp)
                     .clip(CircleShape)
-                    .background(Color.Blue),
+                    .background(MaterialTheme.colorScheme.primary), // Sử dụng màu primary
                 contentAlignment = Alignment.Center
             ) {
-                Text("N", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(
+                    "N",
+                    color = MaterialTheme.colorScheme.onPrimary, // Sử dụng màu onPrimary
+                    fontWeight = FontWeight.Bold
+                )
             }
             Spacer(modifier = Modifier.width(10.dp))
-            Text("Your Library", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text(
+                "Your Library",
+                color = MaterialTheme.colorScheme.onBackground, // Sử dụng màu onBackground
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineSmall // Sử dụng kiểu chữ headlineSmall
+            )
         }
-        Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = "Search",
+            tint = MaterialTheme.colorScheme.onBackground // Sử dụng màu onBackground
+        )
     }
 }
