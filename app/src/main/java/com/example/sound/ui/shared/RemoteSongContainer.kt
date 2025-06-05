@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,10 +36,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import coil.compose.rememberAsyncImagePainter
 import coil3.compose.AsyncImage
 import com.example.sound.R
 import com.example.sound.data.database.model.Song
@@ -81,23 +85,32 @@ fun RemoteSongContainer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Album Art
-            val albumArtUri = if (hasAlbumArt.value && song.albumId != null) {
-                ContentUris.withAppendedId(
-                    "content://media/external/audio/albumart".toUri(),
-                    song.albumId
-                )
-            } else {
-                "android.resource://${context.packageName}/${R.drawable.faker1}".toUri()
-            }
+            val coverImageUri = song.coverImage?.toUri()
+            val imagePainter = rememberAsyncImagePainter(
+                model = coverImageUri,
+                placeholder = painterResource(id = R.drawable.album_art),
+                error = painterResource(id = R.drawable.album_art)
+            )
 
-            AsyncImage(
-                model = albumArtUri,
-                contentDescription = null,
+            Image(
+                painter = imagePainter,
+                contentDescription = "Album Art",
                 modifier = Modifier
                     .size(56.dp)
                     .clip(MaterialTheme.shapes.medium),
                 contentScale = ContentScale.Crop
             )
+
+
+//            AsyncImage(
+//                model = imagePainter,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(56.dp)
+//                    .clip(MaterialTheme.shapes.medium),
+//                contentScale = ContentScale.Crop
+//            )
+
 
             // Song Info
             Column(
