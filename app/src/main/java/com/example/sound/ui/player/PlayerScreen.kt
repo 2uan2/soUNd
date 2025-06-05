@@ -61,11 +61,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import com.example.sound.ui.shared.formatTime
 
+import androidx.compose.animation.core.*
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
+
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
-    playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory,),
+    playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onBackClick: () -> Unit,
 ) {
     val currentSong by playerViewModel.currentSong.collectAsState()
@@ -124,166 +130,183 @@ fun PlayerScreen(
             )
     ) {
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
-        containerColor = Color.Transparent,
-        topBar = {
-            TopAppBar(
-                title = { Text("Now Playing", color = Color.White) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        },
-
-        ) {innerPadding ->
-        Column(
+        Scaffold(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            val albumArtUri = currentSong?.albumId?.let {
-                ContentUris.withAppendedId(
-                    "content://media/external/audio/albumart".toUri(),
-                    it
-                )
-            }
-
-            val coverImageUri = currentSong?.coverImage?.toUri()
-
-            val imageModel = when {
-                albumArtUri != null -> albumArtUri
-                coverImageUri != null -> coverImageUri
-                else -> R.drawable.album_art
-            }
-
-            val imagePainter = rememberAsyncImagePainter(
-                model = imageModel,
-                placeholder = painterResource(id = R.drawable.album_art),
-                error = painterResource(id = R.drawable.album_art)
-            )
-
-
-            Image(
-                painter = imagePainter,
-                contentDescription = "Album Art",
-                modifier = Modifier
-                    .size(300.dp)
-                    .clip(MaterialTheme.shapes.medium),
-                contentScale = ContentScale.Crop
-            )
-
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    currentSong?.name ?: "No Title",
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(currentSong?.artist ?: "Artist Name", color = Color.Gray, fontSize = 18.sp)
-            }
-
-            // Slider
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Slider(
-                    value = sliderPosition,
-                    onValueChange = {
-                        userSeeking = true
-                        sliderPosition = it
+                .fillMaxSize(),
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text("Now Playing", color = Color.White) },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White
+                            )
+                        }
                     },
-                    onValueChangeFinished = {
-                        val seekPos = (sliderPosition * duration).toLong()
-                        controller?.seekTo(seekPos)
-                        position = seekPos // Sync position
-                        userSeeking = false
-                    },
-                    valueRange = 0f..1f,
-                    colors = SliderDefaults.colors(
-                        thumbColor = Color.Green,
-                        activeTrackColor = Color.Green,
-                        inactiveTrackColor = Color.DarkGray
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent
                     )
                 )
+            },
+
+            ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                val albumArtUri = currentSong?.albumId?.let {
+                    ContentUris.withAppendedId(
+                        "content://media/external/audio/albumart".toUri(),
+                        it
+                    )
+                }
+
+                val coverImageUri = currentSong?.coverImage?.toUri()
+
+                val imageModel = when {
+                    albumArtUri != null -> albumArtUri
+                    coverImageUri != null -> coverImageUri
+                    else -> R.drawable.album_art
+                }
+
+                val imagePainter = rememberAsyncImagePainter(
+                    model = imageModel,
+                    placeholder = painterResource(id = R.drawable.album_art),
+                    error = painterResource(id = R.drawable.album_art)
+                )
+
+                //add rotate animation
+                // Infinite rotation animation
+                val rotation by rememberInfiniteTransition(label = "rotation").animateFloat(
+                    initialValue = 0f,
+                    targetValue = 360f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 10000, easing = LinearEasing),
+                    ),
+                    label = "rotation"
+                )
+
+                val imageRotation = if (isPlaying) rotation else 0f
+
+                Image(
+                    painter = imagePainter,
+                    contentDescription = "Album Art",
+                    modifier = Modifier
+                        .size(300.dp)
+                        .graphicsLayer {
+                            rotationZ = imageRotation
+                        }
+                        .clip(MaterialTheme.shapes.medium)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        currentSong?.name ?: "No Title",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(currentSong?.artist ?: "Artist Name", color = Color.Gray, fontSize = 18.sp)
+                }
+
+                // Slider
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Slider(
+                        value = sliderPosition,
+                        onValueChange = {
+                            userSeeking = true
+                            sliderPosition = it
+                        },
+                        onValueChangeFinished = {
+                            val seekPos = (sliderPosition * duration).toLong()
+                            controller?.seekTo(seekPos)
+                            position = seekPos // Sync position
+                            userSeeking = false
+                        },
+                        valueRange = 0f..1f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.Green,
+                            activeTrackColor = Color.Green,
+                            inactiveTrackColor = Color.DarkGray
+                        )
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(formatTime(position), color = Color.Gray)
+                        Text(formatTime(duration), color = Color.Gray)
+                    }
+                }
+
+                // Controls
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(formatTime(position), color = Color.Gray)
-                    Text(formatTime(duration), color = Color.Gray)
+                    IconButton(onClick = { playerViewModel.toggleShuffle() }) {
+                        Icon(
+                            Icons.Default.Shuffle,
+                            contentDescription = "Shuffle",
+                            tint = if (isShuffling) Color.Green else Color.Gray
+                        )
+                    }
+                    IconButton(onClick = { playerViewModel.playPrevious() }) {
+                        Icon(
+                            Icons.Default.SkipPrevious,
+                            contentDescription = "Previous",
+                            tint = Color.White,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                    IconButton(
+                        onClick = { togglePlayPause() },
+                        modifier = Modifier
+                            .size(70.dp)
+                            .background(Color.Green, CircleShape)
+                    ) {
+                        Icon(
+                            if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = if (isPlaying) "Pause" else "Play",
+                            tint = Color.White,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                    IconButton(onClick = { playerViewModel.playNext() }) {
+                        Icon(
+                            Icons.Default.SkipNext,
+                            contentDescription = "Next",
+                            tint = Color.White,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                    IconButton(onClick = { playerViewModel.toggleRepeat() }) {
+                        Icon(
+                            Icons.Default.Repeat,
+                            contentDescription = "Repeat",
+                            tint = when (repeatMode) {
+                                RepeatMode.REPEAT_ALL -> Color.Green
+                                RepeatMode.REPEAT_ONE -> Color.Yellow
+                                else -> Color.Gray
+                            }
+                        )
+                    }
                 }
             }
 
-            // Controls
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { playerViewModel.toggleShuffle() }) {
-                    Icon(
-                        Icons.Default.Shuffle,
-                        contentDescription = "Shuffle",
-                        tint = if (isShuffling) Color.Green else Color.Gray
-                    )
-                }
-                IconButton(onClick = { playerViewModel.playPrevious() }) {
-                    Icon(
-                        Icons.Default.SkipPrevious,
-                        contentDescription = "Previous",
-                        tint = Color.White,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-                IconButton(
-                    onClick = { togglePlayPause() },
-                    modifier = Modifier
-                        .size(70.dp)
-                        .background(Color.Green, CircleShape)
-                ) {
-                    Icon(
-                        if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (isPlaying) "Pause" else "Play",
-                        tint = Color.White,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-                IconButton(onClick = { playerViewModel.playNext() }) {
-                    Icon(
-                        Icons.Default.SkipNext,
-                        contentDescription = "Next",
-                        tint = Color.White,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-                IconButton(onClick = { playerViewModel.toggleRepeat() }) {
-                    Icon(
-                        Icons.Default.Repeat,
-                        contentDescription = "Repeat",
-                        tint = when (repeatMode) {
-                            RepeatMode.REPEAT_ALL -> Color.Green
-                            RepeatMode.REPEAT_ONE -> Color.Yellow
-                            else -> Color.Gray
-                        }
-                    )
-                }
-            }
+
         }
-
-
-    }}
+    }
 
 
 }
