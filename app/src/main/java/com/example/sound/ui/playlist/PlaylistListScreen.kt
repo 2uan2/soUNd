@@ -41,7 +41,7 @@ fun PlaylistListScreen(
                         fontWeight = FontWeight.Bold // Stronger emphasis
                     )
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp), // Dynamic color based on elevation
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 )

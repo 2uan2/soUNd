@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp // This can often be replaced by MaterialTheme.typography
 
 @Composable
-fun TopBar() {
+fun TopBar(username: String,) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,7 +38,7 @@ fun TopBar() {
                 // Assuming 'N' is the first letter of the username.
                 // In a real app, this might be dynamic or an image.
                 Text(
-                    "N",
+                    text = username.firstOrNull()?.uppercaseChar().toString(),
                     color = MaterialTheme.colorScheme.onPrimary, // Use onPrimary for text on primary background
                     style = MaterialTheme.typography.titleMedium, // Use Material 3 typography
                     fontWeight = FontWeight.Bold
@@ -46,18 +46,18 @@ fun TopBar() {
             }
             Spacer(modifier = Modifier.width(12.dp)) // Increased spacing
             Text(
-                "Your Library",
+                "HELLO , $username",
                 color = MaterialTheme.colorScheme.onSurface, // Use onSurface for text color
                 style = MaterialTheme.typography.headlineSmall, // Use Material 3 typography
                 fontWeight = FontWeight.Bold
             )
         }
-        IconButton(onClick = { /* Handle search click */ }) { // Make search icon clickable
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant // Use a softer tint for icons
-            )
-        }
+//        IconButton(onClick = { /* Handle search click */ }) { // Make search icon clickable
+//            Icon(
+//                imageVector = Icons.Default.Search,
+//                contentDescription = "Search",
+//                tint = MaterialTheme.colorScheme.onSurfaceVariant // Use a softer tint for icons
+//            )
+//        }
     }
 }

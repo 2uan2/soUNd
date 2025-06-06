@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
+import androidx.compose.material3.TopAppBarDefaults
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -75,6 +76,7 @@ import androidx.compose.runtime.LaunchedEffect
 import com.example.sound.ui.shared.EmptySongListUI
 import com.example.sound.ui.shared.isAlbumArtAvailable
 import com.example.sound.ui.shared.SongContainer
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,14 +106,20 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(16.dp)
             ) {
-                Text(
-                    text = "Your Music",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "Your Music",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
+                    )
                 )
                 OutlinedTextField(
                     value = queryText,

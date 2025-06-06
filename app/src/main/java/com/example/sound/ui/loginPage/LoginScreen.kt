@@ -2,23 +2,31 @@ package com.example.sound.ui.loginPage
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,24 +45,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.R
 import com.example.sound.ui.loginPage.authService.AuthUiState
 import com.example.sound.ui.loginPage.authService.AuthViewModel
 import com.example.sound.ui.loginPage.authService.AuthViewModelFactory
-
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Arrangement
 
 
-import androidx.compose.foundation.verticalScroll
-
-//@Preview(showBackground = true)
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory()),
-//    authUiState: AuthUiState,
     onLoginButtonClicked: (String, String) -> Unit,
     onLoginSuccess: (String) -> Unit,
     onSignupRouteClicked: () -> Unit = {},
@@ -63,97 +64,110 @@ fun LoginScreen(
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
     val authUiState = authViewModel.authUiState
+    var passwordVisible by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
-    val spotifyGreen = Color(0x00000)
+
+    val primaryPurple = Color(0xFF7d32a8)
+    val onPrimaryWhite = Color.White
+    val errorRed = MaterialTheme.colorScheme.error
+    val successGreen = Color(0xFF4CAF50)
+
+    val customOutlinedTextFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = primaryPurple,
+        unfocusedBorderColor = primaryPurple.copy(alpha = 0.5f),
+        cursorColor = primaryPurple,
+        focusedTextColor = primaryPurple,
+        unfocusedTextColor = primaryPurple.copy(alpha = 0.7f),
+        focusedLabelColor = primaryPurple,
+        unfocusedLabelColor = primaryPurple.copy(alpha = 0.5f)
+    )
+
     Column(
         Modifier
             .fillMaxSize()
             .background(Color.White)
             .verticalScroll(scrollState)
             .imePadding()
-            .padding(vertical = 24.dp),
+            .padding(horizontal = 24.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-//        Image(
-//            painterResource(id = R.drawable.wave),
-//            contentDescription = null,
-//            contentScale = ContentScale.FillBounds
-//        )
-
         Image(
             painterResource(id = R.drawable.logo),
-            contentDescription = null,
-            modifier = Modifier.height(150.dp)
+            contentDescription = "SoUNd Logo",
+            modifier = Modifier.height(120.dp)
         )
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             "Welcome to SoUNd",
-            fontSize = 30.sp,
-            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+            fontSize = 28.sp,
+            fontStyle = androidx.compose.ui.text.font.FontStyle.Normal,
             fontWeight = FontWeight.Bold,
-            color = Color("#7d32a8".toColorInt())
+            color = primaryPurple,
+            style = MaterialTheme.typography.headlineMedium
         )
+        Spacer(modifier = Modifier.height(32.dp))
 
-        val passwordVisible by remember { mutableStateOf(false) }
-
-        TextField(
-            value = user, { text -> user = text },
+        OutlinedTextField(
+            value = user,
+            onValueChange = { text -> user = text },
+            label = { Text("Username") },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(66.dp)
-                .padding(start = 64.dp, end = 64.dp, top = 8.dp, bottom = 8.dp)
-                .border(1.dp, Color("#7d32a8".toColorInt()), shape = RoundedCornerShape(50)),
+                .padding(horizontal = 16.dp),
             shape = RoundedCornerShape(50),
             textStyle = TextStyle(
-                textAlign = TextAlign.Center,
-                color = Color("#7d32a8".toColorInt()),
-                fontSize = 14.sp
+                textAlign = TextAlign.Start,
+                color = primaryPurple,
+                fontSize = 16.sp
             ),
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                focusedTextColor = Color("#7d32a8".toColorInt()),
-                unfocusedTextColor = Color("#7d32a8".toColorInt()),
-                cursorColor = Color("#7d32a8".toColorInt())
-            )
-
+            colors = customOutlinedTextFieldColors
         )
-        TextField(
-            value = pass, { text -> pass = text },
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = pass,
+            onValueChange = { text -> pass = text },
+            label = { Text("Password") },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(66.dp)
-                .padding(start = 64.dp, end = 64.dp, top = 8.dp, bottom = 8.dp)
-                .border(1.dp, Color("#7d32a8".toColorInt()), shape = RoundedCornerShape(50)),
+                .padding(horizontal = 16.dp),
             shape = RoundedCornerShape(50),
             textStyle = TextStyle(
-                textAlign = TextAlign.Center,
-                color = Color("#7d32a8".toColorInt()),
-                fontSize = 14.sp
+                textAlign = TextAlign.Start,
+                color = primaryPurple,
+                fontSize = 16.sp
             ),
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                focusedTextColor = Color("#7d32a8".toColorInt()),
-                unfocusedTextColor = Color("#7d32a8".toColorInt()),
-                cursorColor = Color("#7d32a8".toColorInt())
-            ),
-            visualTransformation = if (passwordVisible) VisualTransformation.None
-            else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                val image = if (passwordVisible)
+                    Icons.Filled.Visibility
+                else Icons.Filled.VisibilityOff
+
+                val description = if (passwordVisible) "Hide password" else "Show password"
+
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            },
+            colors = customOutlinedTextFieldColors
         )
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Register",
-            color = Color.Blue,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier
                 .clickable(
                     onClick = onSignupRouteClicked
-                ),
+                )
+                .align(Alignment.End)
+                .padding(end = 16.dp),
         )
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
@@ -162,42 +176,58 @@ fun LoginScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(66.dp)
-                .padding(start = 64.dp, end = 64.dp, top = 8.dp, bottom = 8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color("#7d32a8".toColorInt())),
-            shape = RoundedCornerShape(50)
+                .height(56.dp)
+                .padding(horizontal = 16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = primaryPurple),
+            shape = RoundedCornerShape(50),
+            enabled = authUiState !is AuthUiState.Loading
         ) {
-            Text("Login", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            if (authUiState is AuthUiState.Loading) {
+                CircularProgressIndicator(color = onPrimaryWhite, modifier = Modifier.size(24.dp))
+            } else {
+                Text("Login", color = onPrimaryWhite, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
         }
+        Spacer(modifier = Modifier.height(16.dp))
 
         when (authUiState) {
-            is AuthUiState.Loading -> Text("Loading...", color = Color.Gray)
-            is AuthUiState.Error -> Text("Error: ${authUiState.message}", color = Color.Red)
+            is AuthUiState.Loading -> Text("Đang đăng nhập...", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+            is AuthUiState.Error -> Text("Lỗi: ${authUiState.message}", color = errorRed, style = MaterialTheme.typography.bodySmall)
             is AuthUiState.Success -> {
-                Text("Login successful!", color = Color.Green)
+                Text("Đăng nhập thành công!", color = successGreen, style = MaterialTheme.typography.bodySmall)
                 LaunchedEffect(Unit) {
                     onLoginSuccess(authUiState.token)
                 }
             }
             else -> {}
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
-            text = "Don't remember password? click here",
-            Modifier.padding(top = 8.dp, bottom = 16.dp),
+            text = "Quên mật khẩu? Nhấn vào đây",
+            modifier = Modifier.padding(top = 8.dp),
             fontSize = 14.sp,
-            color = Color("#7d32a8".toColorInt())
+            color = primaryPurple,
+            style = MaterialTheme.typography.bodySmall
         )
+        Spacer(modifier = Modifier.height(24.dp))
 
         Row(Modifier.padding(top = 16.dp)) {
             Image(
                 painter = painterResource(id = R.drawable.google),
-                contentDescription = "",
-                Modifier.padding(8.dp)
+                contentDescription = "Đăng nhập bằng Google",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(48.dp)
+                    .clickable {  }
             )
             Image(
                 painter = painterResource(id = R.drawable.facebook),
-                contentDescription = "",
-                Modifier.padding(8.dp)
+                contentDescription = "Đăng nhập bằng Facebook",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(48.dp)
+                    .clickable {  }
             )
         }
     }
