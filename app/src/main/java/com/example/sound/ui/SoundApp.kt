@@ -45,6 +45,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import com.example.sound.ui.home.HomeViewModel
 import com.example.sound.ui.shared.WaitingScreen
 import com.example.sound.ui.user.LibraryScreen
+import com.example.sound.ui.user.SettingScreen
 import kotlin.toString
 
 
@@ -74,6 +75,9 @@ sealed class Screen(val route: String) {
         const val ARG_ALBUM_NAME = "albumName"
         const val ARG_PLAYLIST_ID = "playlistId"
     }
+
+    object Settings : Screen("settings_route")
+
 }
 
 
@@ -161,7 +165,8 @@ fun SoundApp(
                     authState = authState.value,
                     onSongClick = {},
                     playerViewModel = playerViewModel,
-                    viewModel = homeViewModel
+                    viewModel = homeViewModel,
+                    onSettingsClicked = { navController.navigate("settings_route") },
                 )
             }
             composable(route = Screen.Signup.route) {
@@ -261,6 +266,12 @@ fun SoundApp(
                 PlayerScreen(
                     playerViewModel = playerViewModel,
                     onBackClick = { navController.popBackStack() })
+            }
+            composable(route = Screen.Settings.route) {
+                SettingScreen(
+                    onNavigateToAccountSettings = {},
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }

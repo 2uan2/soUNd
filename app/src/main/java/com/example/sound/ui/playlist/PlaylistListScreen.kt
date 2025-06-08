@@ -1,5 +1,6 @@
 package com.example.sound.ui.playlist
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.sound.data.database.model.Playlist
 import com.example.sound.data.database.model.PlaylistWithSongs
+import androidx.compose.ui.draw.clip
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +36,13 @@ fun PlaylistListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Your Playlists", style = MaterialTheme.typography.titleLarge) },
+                title = {
+                    Text(
+                        "Your Playlists",
+                        style = MaterialTheme.typography.headlineMedium, // Slightly larger title
+                        fontWeight = FontWeight.Bold // Stronger emphasis
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -59,19 +68,21 @@ fun PlaylistListScreen(
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(horizontal = 24.dp) // Add horizontal padding for text
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.PlaylistPlay,
                         contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        modifier = Modifier.size(96.dp), // Larger icon for empty state
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) // Slightly lighter tint
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp)) // Increased spacing
                     Text(
-                        text = "No playlists yet",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "You don't have any playlists yet.\nTap the '+' button to create one!", // More descriptive text
+                        style = MaterialTheme.typography.titleMedium, // Better typography for main message
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center // Center align text
                     )
                 }
             }
@@ -107,22 +118,44 @@ fun PlaylistContainer(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = playlistWithSongs.playlist.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "${playlistWithSongs.songs.size} songs",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            // Icon box (like album)
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlaylistPlay,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(
+                    text = playlistWithSongs.playlist.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "${playlistWithSongs.songs.size} songs",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }

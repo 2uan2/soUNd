@@ -38,6 +38,13 @@ class HomeViewModel(
     private val _currentSource = MutableStateFlow(SongSourceType.LOCAL)
     val currentSource: StateFlow<SongSourceType> = _currentSource
 
+    // Add isLoading, isRefreshing, and error StateFlows
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
+
     val songs: StateFlow<List<Song>> =
         combine(_localSongs, _remoteSongs, _currentSource) { local, remote, source ->
             when (source) {
@@ -89,10 +96,6 @@ class HomeViewModel(
             initialValue = HomeUiState()
         )
 
-
-//    init {
-//        refreshSongs()
-//    }
 
     fun refreshSongs() {
         viewModelScope.launch {
