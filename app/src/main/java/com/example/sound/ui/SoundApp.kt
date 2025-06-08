@@ -235,6 +235,8 @@ fun SoundApp(
                     onAlbumClick = { album ->
                         navController.navigate(Screen.AlbumDetail.createRoute(album))
                     },
+                    homeViewModel = homeViewModel,
+                    playerViewModel = playerViewModel
                 )
             }
             composable(

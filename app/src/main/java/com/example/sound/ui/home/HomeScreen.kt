@@ -8,6 +8,7 @@ import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -71,7 +72,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.painterResource
+import coil.compose.rememberAsyncImagePainter
+import com.example.sound.data.database.model.ArtistDto
 import com.example.sound.ui.shared.EmptySongListUI
 import com.example.sound.ui.shared.isAlbumArtAvailable
 import com.example.sound.ui.shared.SongContainer
@@ -97,9 +102,16 @@ fun HomeScreen(
         ) == true
     }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
 
+    //test artist
+    val artists by viewModel.artists.collectAsState()
+
+
     LaunchedEffect(Unit) {
         viewModel.loadRemoteSongs()
+        viewModel.loadArtists()//test artist
+
     }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -163,6 +175,7 @@ fun HomeScreen(
                 .padding(innerPadding),
             queryText = queryText.trim()
         )
+
     }
 }
 

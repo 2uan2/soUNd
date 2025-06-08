@@ -2,9 +2,13 @@ package com.example.sound.ui.home
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.sound.data.database.model.ArtistDto
 import com.example.sound.data.database.model.Song
 import com.example.sound.data.database.model.toLocalSong
 import com.example.sound.data.network.RetrofitInstance
@@ -146,6 +150,35 @@ class HomeViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
+
+    //test get artist object
+
+    private val _artists = MutableStateFlow<List<ArtistDto>>(emptyList())
+    val artists: StateFlow<List<ArtistDto>> = _artists
+
+    fun loadArtists() {
+        viewModelScope.launch {
+            val result = songDataSource.getAllArtistsObject()
+            result.fold(
+                onSuccess = {
+                    _artists.value = it
+                },
+                onFailure = {
+                    Log.e(TAG, "Failed to load artists: ${it.message}")
+                }
+            )
+        }
+    }
+    fun getSongsByArtist(artistName: String): List<Song> {
+        // Use the current remote songs list, safely handle null
+        val remoteList = _remoteSongs.value ?: emptyList()
+
+        // Filter songs that have artist_fk matching the given artistId
+        return remoteList.filter { song ->
+            song.artist == artistName
+        }
+    }
+
 }
 
 data class HomeUiState(

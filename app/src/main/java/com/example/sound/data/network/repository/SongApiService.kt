@@ -1,5 +1,6 @@
 package com.example.sound.data.network.repository
 
+import com.example.sound.data.database.model.ArtistDto
 import com.example.sound.data.database.model.RemoteSongDto
 import com.example.sound.data.network.model.SongUploadResponse
 import okhttp3.MultipartBody
@@ -34,4 +35,10 @@ interface SongApiService {
         @Header("Authorization") authString: String,
         @Path("id") serverId: Int
     ): Response<Unit>
+
+    @GET("song/artists/")
+    suspend fun getAllArtists(): Response<List<ArtistDto>>
+
+    @GET("song/artists/{artistId}/songs/")
+    suspend fun getSongsByArtist(@Path("artistId") artistId: Int): Response<List<RemoteSongDto>>
 }

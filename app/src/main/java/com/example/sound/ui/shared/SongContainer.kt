@@ -133,8 +133,11 @@ fun SongContainer(
             if (authState == AuthState.Authenticated) {
                 IconButton(
                     onClick = {
-                        val songFile = File(context.cacheDir, "${song.name}.mp3")
-                        songFile.createNewFile()
+                        val safeName = song.name.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+                        val songFile = File(context.cacheDir, "$safeName.mp3")
+                        if (!songFile.exists()) {
+                            songFile.createNewFile()
+                        }
                         context.contentResolver.openInputStream(song.songUri.toUri())
                             ?.use { inputStream ->
                                 songFile.outputStream().use { outputStream ->
@@ -142,7 +145,6 @@ fun SongContainer(
                                 }
                             }
                             ?: throw IllegalArgumentException("Cannot open input stream from: ${song.songUri}")
-
                         val albumArtFile = File(context.cacheDir, "albumArt.jpg")
                         if (hasAlbumArt.value && song.albumId != null) {
                             // Trường hợp có album art từ MediaStore

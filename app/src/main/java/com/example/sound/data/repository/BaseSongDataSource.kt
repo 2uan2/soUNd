@@ -3,6 +3,7 @@ package com.example.sound.data.repository
 import android.util.Log
 import coil.network.HttpException
 import com.example.sound.data.database.dao.SongDao
+import com.example.sound.data.database.model.ArtistDto
 import com.example.sound.data.database.model.Song
 import com.example.sound.data.database.model.toLocalSong
 import com.example.sound.data.network.RetrofitInstance
@@ -45,6 +46,9 @@ interface BaseSongDataSource {
     suspend fun getRemoteSongs(): Result<List<Song>>
 
     suspend fun toggleFavourite(serverId: Int)
+
+    suspend fun getAllArtistsObject(): Result<List<ArtistDto>>
+    suspend fun getSongsByArtist(artistId: Int): Result<List<Song>>
 }
 
 class LocalSongDataSource(
@@ -148,6 +152,33 @@ class LocalSongDataSource(
         } catch (e: HttpException) {
             e.printStackTrace()
             Result.failure(Exception("HttpException: ${e.localizedMessage}"))
+        }
+    }
+
+    override suspend fun getAllArtistsObject(): Result<List<ArtistDto>> {
+        return try {
+            val response = RetrofitInstance.songApi.getAllArtists()
+            if (response.isSuccessful) {
+                Result.success(response.body() ?: emptyList())
+            } else {
+                Result.failure(Exception("Failed to load artists: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getSongsByArtist(artistId: Int): Result<List<Song>> {
+        return try {
+            val response = RetrofitInstance.songApi.getSongsByArtist(artistId)
+            if (response.isSuccessful) {
+                val songs = response.body()?.map { it.toLocalSong() } ?: emptyList()
+                Result.success(songs)
+            } else {
+                Result.failure(Exception("Failed to load songs: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

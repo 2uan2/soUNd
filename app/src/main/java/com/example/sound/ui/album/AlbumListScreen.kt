@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.MusicNote
@@ -20,12 +22,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sound.ui.AppViewModelProvider
+import com.example.sound.ui.home.HomeViewModel
+import com.example.sound.ui.player.PlayerViewModel
+import com.example.sound.ui.shared.TrendingArtistsSection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumListScreen(
     onAlbumClick: (String) -> Unit,
-    viewModel: AlbumListViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: AlbumListViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    homeViewModel: HomeViewModel,
+    playerViewModel: PlayerViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -66,21 +73,34 @@ fun AlbumListScreen(
                 }
             }
         } else {
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(uiState.albums) { album ->
+                TrendingArtistsSection(homeViewModel = homeViewModel, playerViewModel = playerViewModel)
+
+                Text(
+                    text = "Albums",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                uiState.albums.forEach { album ->
                     AlbumCard(
                         onAlbumClick = { onAlbumClick(album) },
                         album = album
                     )
                 }
+
+                Spacer(modifier = Modifier.height(32.dp)) // extra bottom space
             }
+//
         }
+
     }
 }
 

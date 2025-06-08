@@ -17,6 +17,7 @@ import com.example.sound.ui.loginPage.LoginScreen
 import com.example.sound.ui.loginPage.SignupScreen
 import com.example.sound.ui.theme.SoUNdTheme
 import com.example.sound.ui.SoundApp
+import com.example.sound.ui.shared.TrendingArtistsSection
 import com.example.sound.ui.shared.WaitingScreen
 import com.example.sound.ui.user.LibraryScreen
 
@@ -46,6 +47,8 @@ class MainActivity : ComponentActivity() {
 //                SignupScreen()
 //                WaitingScreen()
 //                LibraryScreen()
+//                TrendingArtistsSection()
+
             }
 
         }
