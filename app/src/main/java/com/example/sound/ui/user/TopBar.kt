@@ -40,21 +40,21 @@ fun TopBar(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = username.firstOrNull()?.uppercaseChar()?.toString() ?: "",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.titleMedium,
+                    color = colorScheme.onPrimary,
+                    style = typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = "Library",
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge,
+                color = colorScheme.onSurface,
+                style = typography.titleLarge,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -68,14 +68,14 @@ fun TopBar(
                 Icon(
                     imageVector = Icons.Filled.Notifications,
                     contentDescription = "Notifications",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = colorScheme.onSurfaceVariant
                 )
             }
             IconButton(onClick = onSettingsClicked) {
                 Icon(
                     imageVector = Icons.Filled.Settings,
                     contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = colorScheme.onSurfaceVariant
                 )
             }
         }
